@@ -6,21 +6,19 @@ import { bakeryRoutes } from "./bakeryRoutes";
 import { BAKERY_PAGE_ROUTE, LOGIN_ROUTE, USER_MAIN_MENU_ROUTE } from "../utils/consts";
 
 const AppRouter = () => {
-    const [token, setToken] = useState(localStorage.getItem("token"));
-    const [tokenSession, setTokenSession] = useState(sessionStorage.getItem("token"));
+    const [token, setToken] = useState(localStorage.getItem("accessToken"));
     const navigate = useNavigate();
 
     useEffect(() => {
         const handleStorageChange = () => {
             setToken(localStorage.getItem("token"));
-            setTokenSession(sessionStorage.getItem("token"));
             navigate("/");
         };
 
         window.addEventListener("storage", handleStorageChange);
     }, [navigate]);
 
-    /*if ((token && localStorage.getItem("role") === "user") || (tokenSession && sessionStorage.getItem("role") === "user")) {
+    /*if ((token && localStorage.getItem("role") === "user")) {
         return (
             <Routes>
                 {userRoutes.map(({ path, Component }) => (
@@ -31,7 +29,7 @@ const AppRouter = () => {
         );
     }*/
 
-    if ((token && localStorage.getItem("role") === "bakery") || (tokenSession && sessionStorage.getItem("bakery") === "user")) {
+    if ((token && localStorage.getItem("role") === "bakery")) {
          return (
              <Routes>
                  {bakeryRoutes.map(({ path, Component }) => (
@@ -42,7 +40,7 @@ const AppRouter = () => {
          );
          }
 
-    if (!token || !tokenSession) {
+    if (!token) {
         return (
             <Routes>
                 {publicRoutes.map(({ path, Component }) => (

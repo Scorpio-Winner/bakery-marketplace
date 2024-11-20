@@ -7,11 +7,14 @@ import backgroundImage from './img/reviewsback.png'; // Путь к фоново
 const ReviewSlider = () => {
   const [reviews, setReviews] = useState([]);
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0);
+  const bakeryId = localStorage.getItem('id');
 
   useEffect(() => {
     // Запрос на сервер для получения всех отзывов с данными о пользователе и заказе
     axios
-      .get('/reviews')
+      .get('/reviews', {
+        params: { id: bakeryId },
+      })
       .then(response => {
         setReviews(response.data);
       })
@@ -56,9 +59,9 @@ const ReviewSlider = () => {
       padding="16px"
       borderRadius="4px"
       boxShadow={1}
-      style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' }}
+      //style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover' }}
     >
-      <Typography variant="h5" align="center" style={{color:'white', marginBottom: '5vh' }}>
+      <Typography variant="h5" align="center" style={{color:'black', marginBottom: '5vh' }}>
         Почитайте отзывы довольных клиентов
       </Typography>
       <Box

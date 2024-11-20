@@ -48,6 +48,23 @@ class ReviewController {
       return res.status(500).json({ error: 'Ошибка сервера при поиске продуктов для данной корзины' });
   }
 }
+
+async getReviewByBakeryID(req, res) {
+  const { id } = req.query; // изменение здесь
+
+  try {
+    const review = await Review.findAll({ where: { bakeryId : id } });
+
+    if (!review || review.length === 0) {
+    return res.status(404).json({ message: 'Отзывы не найдены' });
+    }
+
+    return res.status(200).json( review );
+} catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Ошибка сервера при поиске продуктов для данной корзины' });
+}
+}
   
 }
 

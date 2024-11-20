@@ -4,8 +4,9 @@ const fs = require("fs");
 
 class ProductController {
   async getAllProducts(req, res) {
+    const { id } = req.query;
     try {
-      const products = await Product.findAll();
+      const products = await Product.findAll({ where: { bakeryId : id } });;
       return res.json(products);
     } catch (err) {
       console.error(err);

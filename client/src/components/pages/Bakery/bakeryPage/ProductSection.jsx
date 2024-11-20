@@ -64,13 +64,16 @@ const ProductSection = () => {
   const [selectedQuantities, setSelectedQuantities] = useState({});
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertOpenError, setAlertOpenError] = useState(false);
+  const bakeryId = localStorage.getItem('id');
 
   useEffect(() => {
     const loadData = async () => {
       try {
   
         // Получаем продукты
-        const productsResponse = await axios.get('/products');
+        const productsResponse = await axios.get('/products/bakeries-products', {
+          params: { id: bakeryId },
+        });
   
         if (!productsResponse) {
           console.log("Ошибка при загрузке продуктов");

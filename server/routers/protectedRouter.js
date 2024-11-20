@@ -4,6 +4,7 @@ const bakeryController = require("../controllers/bakeryController");
 const basketItemController = require("../controllers/basketItemController");
 const orderController = require("../controllers/orderController");
 const reviewController = require("../controllers/reviewController");
+const productController = require("../controllers/productController");
 
 
 const router = new Router();
@@ -27,6 +28,7 @@ router.get("/in-process-orders/:id", orderController.getInProcessOrders);
 
 
 router.get("/review/:id", reviewController.getReviewByOrderID);
+router.get("/review", reviewController.getReviewByBakeryID);
 router.post("/create-review", reviewController.createReview);
 router.put("/order/update/:id", orderController.updateOrderStatusCancelled);
 router.put("/order/update/complete/:id", orderController.updateOrderStatusCompleted);
@@ -35,9 +37,6 @@ router.put("/order/update/in-progress/:id", orderController.updateOrderStatusInP
 
 router.get("/completed-orders", orderController.getAllCompletedOrders);
 router.get("/in-process-orders", orderController.getAllInProcessOrders);
-
-
-
 
 
 
