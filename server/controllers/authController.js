@@ -25,19 +25,11 @@ class AuthController {
                     return res.status(401).json({ error: "Authentication failed" });
                 }
 
-                if(password ===user.password){
-                    const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
-                        expiresIn: "5h",
-                    });
-    
-                    res.status(200).json({ accessToken: token, role: "user", id: user.id  });
-                }
-
                 const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
                     expiresIn: "5h",
                 });
 
-                res.status(200).json({ token: token, role: "user" });
+                res.status(200).json({ accessToken: token, role: "user", id: user.id, refreshToken: token });
             } else if (bakery){
                 const passwordMatch = await bcrypt.compare(password, bakery.password);
 
@@ -49,7 +41,7 @@ class AuthController {
                     expiresIn: "5h",
                 });
 
-                res.status(200).json({ accessToken: token, role: "bakery", id: bakery.id });
+                res.status(200).json({ accessToken: token, role: "bakery", id: bakery.id, refreshToken: token });
             }
         } catch (error) {
             res.status(500).json({ error: "Login failed" });
