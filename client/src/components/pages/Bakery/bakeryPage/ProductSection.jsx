@@ -4,7 +4,6 @@ import axios from 'axios';
 import { Card, CardContent, CardActions, Button, Typography } from '@material-ui/core';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { getProfile } from "../../api/userApi";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
@@ -61,7 +60,6 @@ const useStyles = makeStyles((theme) => ({
 const ProductSection = () => {
   const classes = useStyles();
   const [products, setProducts] = useState([]);
-  const [userData, setUserData] = useState({});
   const [avatars, setAvatars] = useState({});
   const [selectedQuantities, setSelectedQuantities] = useState({});
   const [alertOpen, setAlertOpen] = useState(false);
@@ -70,29 +68,6 @@ const ProductSection = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const userDataResponse = await getProfile();
-  
-        if (!userDataResponse) {
-          console.log("Сервис временно недоступен");
-          return;
-        }
-  
-        if (userDataResponse.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("role");
-          sessionStorage.removeItem("token");
-          sessionStorage.removeItem("role");
-          window.location.reload();
-          return;
-        }
-  
-        if (userDataResponse.status >= 300) {
-          console.log("Ошибка при загрузке профиля. Код: " + userDataResponse.status);
-          console.log(userDataResponse);
-          return;
-        }
-  
-        setUserData(userDataResponse.data);
   
         // Получаем продукты
         const productsResponse = await axios.get('/products');

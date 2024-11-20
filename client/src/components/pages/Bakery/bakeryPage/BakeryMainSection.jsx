@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MainSection = () => {
+const BakeryMainSection = () => {
   const classes = useStyles();
   const navigate = useNavigate();
 
@@ -79,16 +79,9 @@ const MainSection = () => {
     navigate("/login");
   };
 
-  const handleProfileClick = () => {
-    navigate("/profile");
-  };
-  
-  const handleBasketClick = () => {
-    navigate("/basket");
-  };
 
   const handleOrdersClick = () => {
-    navigate("/orders");
+    navigate("/admin-orders");
   };
 
   return (
@@ -128,39 +121,6 @@ const MainSection = () => {
             </Box>
           </IconButton>
 
-          {/* Корзина */}
-          <IconButton color="inherit" onClick={handleBasketClick}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                border: "2px solid #FFFFFF",
-              }}
-            >
-              <ShoppingCartIcon sx={{ fontSize: 24, color: "#FFFFFF" }} />
-            </Box>
-          </IconButton>
-
-          {/* Профиль */}
-          <IconButton color="inherit" onClick={handleProfileClick}>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                border: "2px solid #FFFFFF",
-              }}
-            >
-              <PersonIcon sx={{ fontSize: 24, color: "#FFFFFF" }} />
-            </Box>
-          </IconButton>
 
           {/* Кнопка выхода */}
           <IconButton color="inherit" onClick={handleLogoutClick}>
@@ -197,4 +157,4 @@ const MainSection = () => {
   );
 };
 
-export default MainSection;
+export default BakeryMainSection;

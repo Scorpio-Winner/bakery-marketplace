@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Typography, TextField, Button, Grid } from '@material-ui/core';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Rating from '@mui/material/Rating';
-import { updateOrderStatusCancelled } from '../api/orderApi';
-import { getReview } from '../api/reviewApi';
-import logo from "../header/logo.png";
+import { updateOrderStatusCancelled } from '../../api/orderApi';
+import { getReview } from '../../api/reviewApi';
+import logo from "../../header/logo.png";
 import axios from 'axios';
 
 const OrderModal = ({ order, onClose }) => {

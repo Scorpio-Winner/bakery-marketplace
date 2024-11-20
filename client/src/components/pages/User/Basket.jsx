@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography, Paper, TextField, Button } from '@material-ui/core';
-import logo from '../header/logo.png';
-import Header from '../header/Header';
-import { getProfile } from "../api/userApi";
-import { getBasketItems } from "../api/basketApi";
+import logo from '../../header/logo.png';
+import Header from '../../header/Header';
+import { getProfile } from "../../api/userApi";
+import { getBasketItems } from "../../api/basketApi";
 import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({

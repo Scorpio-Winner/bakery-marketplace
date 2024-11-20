@@ -1,6 +1,6 @@
 import React from 'react';
 
-import OrdersHeader from '../header/OrdersHeader'; 
+import OrdersHeader from '../../header/OrdersHeader'; 
 import { Typography, Box } from '@material-ui/core';
 
 const OrdersPage = () => {

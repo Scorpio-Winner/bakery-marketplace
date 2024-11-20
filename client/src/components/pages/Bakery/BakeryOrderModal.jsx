@@ -7,7 +7,7 @@ import { getProfile} from './api/adminApi';
 import logo from "./logo.png";
 import axios from 'axios';
 
-const AdminOrderModal = ({ order, user, onClose }) => {
+const BakeryOrderModal = ({ order, user, onClose }) => {
   const [completionTime, setCompletionTime] = useState(order.completion_time || '');
   const [adminData, setAdminData] = useState({});
 
@@ -241,4 +241,4 @@ const AdminOrderModal = ({ order, user, onClose }) => {
   );
 };
 
-export default AdminOrderModal;
+export default BakeryOrderModal;

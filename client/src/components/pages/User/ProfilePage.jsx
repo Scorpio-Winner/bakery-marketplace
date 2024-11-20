@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../header/Header';
+import Header from '../../header/Header';
 import { Avatar, Button, Typography, Grid, TextField } from '@mui/material';
-import { getProfile, updateUserInfo, } from "../api/userApi";
+import { getProfile, updateUserInfo, } from "../../api/userApi";
 import axios from 'axios';
 
 const Profile = () => {

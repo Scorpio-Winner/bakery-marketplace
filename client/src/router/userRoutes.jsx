@@ -1,9 +1,9 @@
-import BakeryPage from "../components/pages/BakeryPage";
-import ProfilePage from "../components/pages/ProfilePage";
-import Basket from "../components/pages/Basket";
-import OrdersPage from "../components/pages/OrdersPage";
-import CompletedOrdersPage from "../components/pages/CompletedOrdersPage";
-import CurrentOrdersPage from "../components/pages/CurrentOrdersPage";
+import BakeryPage from "../components/pages/Bakery/BakeryPage";
+import ProfilePage from "../components/pages/User/ProfilePage";
+import Basket from "../components/pages/User/Basket";
+import OrdersPage from "../components/pages/User/OrdersPage";
+import CompletedOrdersPage from "../components/pages/User/CompletedOrdersPage";
+import CurrentOrdersPage from "../components/pages/User/CurrentOrdersPage";
 
 export const userRoutes = [
     {

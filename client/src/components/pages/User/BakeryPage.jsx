@@ -1,10 +1,10 @@
 import React from 'react';
-import MainSection from './mainPage/MainSection';
-import ProductSection from './mainPage/ProductSection';
-import PastrychefSection from './mainPage/PastrychefSection';
-import ReviewsSection from './mainPage/ReviewsSection';
-import InstSection from './mainPage/InstSection';
-import Footer from './mainPage/Footer';
+import MainSection from './bakeryPage/MainSection';
+import ProductSection from './bakeryPage/ProductSection';
+import PastrychefSection from './bakeryPage/PastrychefSection';
+import ReviewsSection from './bakeryPage/ReviewsSection';
+import InstSection from './bakeryPage/InstSection';
+import Footer from './bakeryPage/Footer';
 
 
 const BakeryPage = () => {

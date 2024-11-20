@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Paper, Button } from '@material-ui/core';
-import OrdersHeader from '../header/OrdersHeader';
-import { getProfile } from "../api/userApi";
-import { getCompletedOrders } from "../api/orderApi";
+import OrdersHeader from '../../header/OrdersHeader';
+import { getProfile } from "../../api/userApi";
+import { getCompletedOrders } from "../../api/orderApi";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import OrderModal from './OrderModal';

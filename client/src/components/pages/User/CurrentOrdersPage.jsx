@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Paper, Button } from '@material-ui/core';
-import OrdersHeader from '../header/OrdersHeader';
-import { getProfile } from "../api/userApi";
-import { getInProcessOrders } from "../api/orderApi";
+import OrdersHeader from '../../header/OrdersHeader';
+import { getProfile } from "../../api/userApi";
+import { getInProcessOrders } from "../../api/orderApi";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import OrderModal from './OrderModal';
 

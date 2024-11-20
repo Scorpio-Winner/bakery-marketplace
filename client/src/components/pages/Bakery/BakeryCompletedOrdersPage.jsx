@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Typography, Paper, Button } from '@material-ui/core';
-import AdminOrdersHeader from './AdminOrdersHeader';
+import BakeryOrdersHeader from './BakeryOrdersHeader';
 import { getAllUsers } from "./api/userApi";
 import { getCompletedOrders } from "./api/orderApi";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import AdminOrderModal from './AdminOrderModal';
+import BakeryOrderModal from './BakeryOrderModal';
 
-const AdminCompletedOrdersPage = () => {
+const BakeryCompletedOrdersPage = () => {
   const [userData, setUserData] = useState({});
   const [selectedUser, setSelectedUser] = useState(null);
   const [completedOrders, setCompletedOrders] = useState([]);
@@ -75,7 +75,7 @@ const AdminCompletedOrdersPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom:'5vh' }}>
-      <AdminOrdersHeader />
+      <BakeryOrdersHeader />
       <Typography variant="h4" align="center" style={{ height: '5vh', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
 
       </Typography>
@@ -99,10 +99,10 @@ const AdminCompletedOrdersPage = () => {
     ))}
 
 {selectedOrder && (
-        <AdminOrderModal order={selectedOrder} user={selectedUser} onClose={handleCloseModal} />
+        <BakeryOrderModal order={selectedOrder} user={selectedUser} onClose={handleCloseModal} />
   )}
     </div>
   );
 };
 
-export default AdminCompletedOrdersPage;
+export default BakeryCompletedOrdersPage;
