@@ -1,85 +1,163 @@
-const { Basket, BasketItem, Product, Order } = require('../models/models');
+const { Basket, BasketItem, Product, User } = require('../models/models');
 
 class BasketController {
-  async createOrUpdateBasket(req, res) {
-    const { userId } = req.params;
+    async getBasket(req, res) {
+        try {
+            const userId = req.user.userId;
 
-    try {
-      let basket = await Basket.findOne({ where: { UserId: userId } });
+            console.log(`Получение корзины для пользователя ID: ${userId}`);
 
-      if (!basket) {
-        // Если корзина не существует, создаем новую
-        basket = await Basket.create({ UserId: userId });
-      }
+            let basket = await Basket.findOne({
+                where: { userId },
+                include: [
+                    {
+                        model: BasketItem,
+                        include: [Product],
+                    },
+                ],
+            });
 
-      return res.status(200).json({ basket });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Ошибка сервера' });
+            if (!basket) {
+                console.log('Корзина отсутствует. Создание новой корзины.');
+                basket = await Basket.create({ userId });
+            }
+
+            console.log('Полученная корзина:', basket);
+            res.json(basket);
+        } catch (error) {
+            console.error('Ошибка при получении корзины:', error);
+            res.status(500).json({ message: 'Ошибка сервера' });
+        }
     }
-  }
 
-  async addProductToBasket(req, res) {
-    const { basketId, productId, quantity } = req.body;
+    async addItem(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { productId, quantity } = req.body;
 
-    try {
-      const basket = await Basket.findByPk(basketId);
-      const product = await Product.findByPk(productId);
+            const product = await Product.findByPk(productId);
+            if (!product) {
+                return res.status(404).json({ message: 'Товар не найден' });
+            }
 
-      if (!basket || !product) {
-        return res.status(404).json({ error: 'Корзина или продукт не найдены' });
-      }
+            let basket = await Basket.findOne({
+                where: { userId },
+                include: [
+                    {
+                        model: BasketItem,
+                        include: [Product], // Включаем связанные товары
+                    },
+                ],
+            });
 
-      await basket.addProduct(product, { through: { quantity } });
+            if (!basket) {
+                console.log('Корзина отсутствует. Создание новой корзины.');
+                basket = await Basket.create({ userId });
+            }
 
-      return res.status(200).json({ message: 'Товар добавлен в корзину' });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Ошибка сервера' });
+            // Проверка на товары из разных пекарен
+            if (basket.BasketItems && basket.BasketItems.length > 0) {
+                const existingBakeryId = basket.BasketItems[0].Product.bakeryId;
+                if (existingBakeryId !== product.bakeryId) {
+                    return res.status(400).json({ message: 'В корзине могут быть товары только из одной пекарни.' });
+                }
+            }
+
+            let basketItem = await BasketItem.findOne({
+                where: { basketId: basket.id, productId },
+            });
+
+            if (basketItem) {
+                basketItem.quantity += quantity;
+                await basketItem.save();
+            } else {
+                basketItem = await BasketItem.create({
+                    basketId: basket.id,
+                    productId,
+                    quantity,
+                });
+            }
+
+            res.status(201).json(basketItem);
+        } catch (error) {
+            console.error('Ошибка при добавлении товара в корзину:', error);
+            res.status(500).json({ message: 'Ошибка сервера' });
+        }
     }
-  }
 
-  async removeProductFromBasket(req, res) {
-    const { basketId, productId } = req.params;
+    async removeItem(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { productId } = req.params;
 
-    try {
-      const basket = await Basket.findByPk(basketId);
-      const product = await Product.findByPk(productId);
+            const basket = await Basket.findOne({ where: { userId } });
+            if (!basket) {
+                return res.status(404).json({ message: 'Корзина не найдена' });
+            }
 
-      if (!basket || !product) {
-        return res.status(404).json({ error: 'Корзина или продукт не найдены' });
-      }
+            const basketItem = await BasketItem.findOne({
+                where: { basketId: basket.id, productId },
+            });
 
-      await basket.removeProduct(product);
+            if (!basketItem) {
+                return res.status(404).json({ message: 'Товар в корзине не найден' });
+            }
 
-      return res.status(200).json({ message: 'Товар удален из корзины' });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Ошибка сервера' });
+            await basketItem.destroy();
+
+            res.status(200).json({ message: 'Товар успешно удален из корзины' });
+        } catch (error) {
+            console.error('Ошибка при удалении товара из корзины:', error);
+            res.status(500).json({ message: 'Ошибка сервера' });
+        }
     }
-  }
 
-  async updateOrderStatus(req, res) {
-    const { orderId } = req.params;
-  
-    try {
-      const order = await Order.findByPk(orderId, { include: Basket });
-  
-      if (!order) {
-        return res.status(404).json({ error: 'Заказ не найден' });
-      }
-  
-      order.status = 'Сформирован'; // Изменяем статус заказа на "Сформирован"
-      await order.save();
-  
-      await BasketItem.destroy({ where: { BasketId: order.Basket.id } }); // Очищаем все записи BasketItem, связанные с корзиной
-  
-      return res.status(200).json({ message: 'Статус заказа обновлен, корзина очищена' });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Ошибка сервера' });
+    async updateItemQuantity(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { productId } = req.params;
+            const { quantity } = req.body;
+
+            const basket = await Basket.findOne({ where: { userId } });
+            if (!basket) {
+                return res.status(404).json({ message: 'Корзина не найдена' });
+            }
+
+            const basketItem = await BasketItem.findOne({
+                where: { basketId: basket.id, productId },
+            });
+
+            if (!basketItem) {
+                return res.status(404).json({ message: 'Товар в корзине не найден' });
+            }
+
+            basketItem.quantity = quantity;
+            await basketItem.save();
+
+            res.status(200).json(basketItem);
+        } catch (error) {
+            console.error('Ошибка при обновлении количества товара в корзине:', error);
+            res.status(500).json({ message: 'Ошибка сервера' });
+        }
     }
-  }
+
+    async clearBasket(req, res) {
+        try {
+            const userId = req.user.userId;
+
+            const basket = await Basket.findOne({ where: { userId } });
+            if (!basket) {
+                return res.status(404).json({ message: 'Корзина не найдена' });
+            }
+
+            await BasketItem.destroy({ where: { basketId: basket.id } });
+
+            res.status(200).json({ message: 'Корзина успешно очищена' });
+        } catch (error) {
+            console.error('Ошибка при очистке корзины:', error);
+            res.status(500).json({ message: 'Ошибка сервера' });
+        }
+    }
 }
 
 module.exports = new BasketController();
