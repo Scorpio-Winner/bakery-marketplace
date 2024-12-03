@@ -37,25 +37,21 @@ class BasketController {
 
             const product = await Product.findByPk(productId);
             if (!product) {
-                return res.status(404).json({ message: 'Товар не найден' });
+                return res.status(404).json({ message: 'Товар не найден.' });
             }
 
             let basket = await Basket.findOne({
                 where: { userId },
-                include: [
-                    {
-                        model: BasketItem,
-                        include: [Product], // Включаем связанные товары
-                    },
-                ],
+                include: [{
+                    model: BasketItem,
+                    include: [Product],
+                }],
             });
 
             if (!basket) {
-                console.log('Корзина отсутствует. Создание новой корзины.');
                 basket = await Basket.create({ userId });
             }
 
-            // Проверка на товары из разных пекарен
             if (basket.BasketItems && basket.BasketItems.length > 0) {
                 const existingBakeryId = basket.BasketItems[0].Product.bakeryId;
                 if (existingBakeryId !== product.bakeryId) {
@@ -65,6 +61,7 @@ class BasketController {
 
             let basketItem = await BasketItem.findOne({
                 where: { basketId: basket.id, productId },
+                include: [Product], 
             });
 
             if (basketItem) {
@@ -76,6 +73,7 @@ class BasketController {
                     productId,
                     quantity,
                 });
+                basketItem = await BasketItem.findByPk(basketItem.id, { include: [Product] }); 
             }
 
             res.status(201).json(basketItem);
