@@ -17,6 +17,7 @@ class BakeryController {
                 email,
                 password,
                 address,
+                is_individual_order_avaliable,
             } = req.body;
 
             const existingBakery = await Bakery.findOne({ where: { email } });
@@ -35,6 +36,7 @@ class BakeryController {
                 email,
                 password: passwordHash,
                 address,
+                is_individual_order_avaliable,
                 photo: req.file ? `/uploads/bakeries/${req.file.filename}` : null,
             });
 
@@ -116,7 +118,7 @@ class BakeryController {
 
     async findAll(req, res) {
         try {
-            const { name, address, averageRating, limit, offset } = req.query;
+            const { name, address, averageRating, is_individual_order_avaliable, limit, offset } = req.query;
 
             const whereConditions = {};
             if (name) {
@@ -125,6 +127,14 @@ class BakeryController {
             }
             if (address) {
                 whereConditions.address = { [Op.iLike]: `%${address}%` };
+            }
+
+            if (typeof is_individual_order_avaliable === 'string') {
+                if (is_individual_order_avaliable === 'true') {
+                    whereConditions.is_individual_order_avaliable = true;
+                } else if (is_individual_order_avaliable === 'false') {
+                    whereConditions.is_individual_order_avaliable = false;
+                }
             }
 
             let havingConditions = null;
@@ -186,6 +196,7 @@ class BakeryController {
                 email,
                 password,
                 address,
+                is_individual_order_avaliable,
             } = req.body;
             const bakeryId = req.params.id;
 
@@ -202,6 +213,7 @@ class BakeryController {
                 description,
                 email,
                 address,
+                is_individual_order_avaliable,
             };
             if (password) {
                 updatedData.password = await bcrypt.hash(password, 12);

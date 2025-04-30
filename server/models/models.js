@@ -17,13 +17,14 @@ const Bakery = sequelize.define('Bakery', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, allowNull: false },
   contact_person_name: { type: DataTypes.STRING, allowNull: false },
-  registration_number: { type: DataTypes.INTEGER, allowNull: false },
+  registration_number: { type: DataTypes.BIGINT, allowNull: false },
   phone: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.STRING },
   email: { type: DataTypes.STRING, unique: true, allowNull: false },
   password: { type: DataTypes.STRING, allowNull: false },
   address: { type: DataTypes.STRING, allowNull: false },
   photo: { type: DataTypes.STRING, allowNull: true },
+  is_individual_order_avaliable: { type: DataTypes.BOOLEAN, allowNull: false }, 
 }, { timestamps: true });
 
 const Product = sequelize.define('Product', {
@@ -57,6 +58,18 @@ const Order = sequelize.define('Order', {
   date_of_ordering: { type: DataTypes.DATE, allowNull: false },
 }, { timestamps: true });
 
+const IndividualOrder = sequelize.define('IndividualOrder', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  delivery_address: { type: DataTypes.STRING, allowNull: false },
+  total_cost: { type: DataTypes.INTEGER, allowNull: true },
+  status: { type: DataTypes.STRING, allowNull: false },
+  completion_time: { type: DataTypes.STRING, allowNull: true },
+  name: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.STRING, allowNull: true },
+  date_of_ordering: { type: DataTypes.DATE, allowNull: false },
+  photo: { type: DataTypes.STRING, allowNull: false },
+}, { timestamps: true });
+
 const OrderItem = sequelize.define('OrderItem', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   quantity: { type: DataTypes.INTEGER, allowNull: false },
@@ -78,8 +91,14 @@ Basket.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Order, { foreignKey: 'userId' });
 Order.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasMany(IndividualOrder, { foreignKey: 'userId' });
+IndividualOrder.belongsTo(User, { foreignKey: 'userId' });
+
 Bakery.hasMany(Order, { foreignKey: 'bakeryId' });
 Order.belongsTo(Bakery, { foreignKey: 'bakeryId' });
+
+Bakery.hasMany(IndividualOrder, { foreignKey: 'bakeryId' });
+IndividualOrder.belongsTo(Bakery, { foreignKey: 'bakeryId' });
 
 Bakery.hasMany(Product, { foreignKey: 'bakeryId' });
 Product.belongsTo(Bakery, { foreignKey: 'bakeryId' });
@@ -89,6 +108,9 @@ Review.belongsTo(Bakery, { foreignKey: 'bakeryId' });
 
 Order.hasOne(Review, { foreignKey: 'orderId' });
 Review.belongsTo(Order, { foreignKey: 'orderId' });
+
+IndividualOrder.hasOne(Review, { foreignKey: 'individualOrderId' });
+Review.belongsTo(IndividualOrder, { foreignKey: 'individualOrderId' });
 
 Basket.belongsToMany(Product, { through: BasketItem, foreignKey: 'basketId', otherKey: 'productId' });
 Product.belongsToMany(Basket, { through: BasketItem, foreignKey: 'productId', otherKey: 'basketId' });
@@ -118,6 +140,7 @@ module.exports = {
   Basket,
   BasketItem,
   Order,
+  IndividualOrder,
   OrderItem,
   Review,
   sequelize,

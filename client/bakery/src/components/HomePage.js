@@ -18,6 +18,10 @@ import {
     InputAdornment,
     Pagination,
     Alert,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import debounce from 'lodash.debounce';
@@ -28,6 +32,7 @@ function HomePage() {
     const [searchName, setSearchName] = useState('');
     const [searchAddress, setSearchAddress] = useState('');
     const [ratingFilter, setRatingFilter] = useState(0);
+    const [individualOrderFilter, setIndividualOrderFilter] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const itemsPerPage = 9;
@@ -38,7 +43,7 @@ function HomePage() {
         debounce(() => {
             fetchBakeries();
         }, 500), // Задержка 500 мс
-        [searchName, searchAddress, ratingFilter, currentPage]
+        [searchName, searchAddress, ratingFilter, individualOrderFilter, currentPage]
     );
 
     useEffect(() => {
@@ -46,7 +51,7 @@ function HomePage() {
 
         // Очистка debounce при размонтировании компонента или изменении зависимостей
         return debouncedFetchBakeries.cancel;
-    }, [searchName, searchAddress, ratingFilter, currentPage, debouncedFetchBakeries]);
+    }, [searchName, searchAddress, ratingFilter, individualOrderFilter, currentPage, debouncedFetchBakeries]);
 
     const fetchBakeries = async () => {
         try {
@@ -60,6 +65,11 @@ function HomePage() {
             if (searchName.trim()) params.name = searchName.trim();
             if (searchAddress.trim()) params.address = searchAddress.trim();
             if (ratingFilter > 0) params.averageRating = ratingFilter;
+            if (individualOrderFilter !== '') {
+                params.is_individual_order_avaliable = individualOrderFilter === 'true';
+            }
+
+            console.log(params);
 
             const response = await axios.get('/api/bakeries', { params });
             setBakeries(response.data.bakeries);
@@ -75,6 +85,7 @@ function HomePage() {
     const handleResetFilters = () => {
         setSearchName('');
         setSearchAddress('');
+        setIndividualOrderFilter('');
         setRatingFilter(0);
         setCurrentPage(1);
         fetchBakeries();
@@ -152,6 +163,31 @@ function HomePage() {
                             </Typography>
                         </Box>
                     </Grid>
+                    <Grid item xs={12} sm={4}>
+                        <FormControl fullWidth>
+                            <InputLabel id="individual-order-label" shrink>Индивидуальный заказ</InputLabel>
+                            <Select
+                                labelId="individual-order-label"
+                                value={individualOrderFilter}
+                                label="Индивидуальный заказ"
+                                displayEmpty
+                                renderValue={(selected) => {
+                                    if (selected === '') {
+                                        return 'Все'; // Показывать "Все", когда value === ''
+                                    }
+                                    return selected === 'true' ? 'Да' : 'Нет';
+                                }}
+                                onChange={(e) => {
+                                    setIndividualOrderFilter(e.target.value);
+                                    setCurrentPage(1); // сбросить на первую страницу
+                                }}
+                            >   
+                                <MenuItem value="">Все</MenuItem>                             
+                                <MenuItem value="true">Да</MenuItem>
+                                <MenuItem value="false">Нет</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Grid>
                 </Grid>
                 <Box sx={{ marginTop: '20px', textAlign: 'right' }}>
                     {/* Кнопка "Сбросить" остаётся, так как автоматически применяются фильтры */}
@@ -220,16 +256,17 @@ function HomePage() {
                                         <Typography variant="body2" color="text.secondary" gutterBottom>
                                             Адрес: {bakery.address}
                                         </Typography>
+
                                         {/* Отображение рейтинга */}
                                         <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
                                             <Rating
                                                 name={`rating-${bakery.id}`}
-                                                value={parseFloat(bakery.averageRating)}
+                                                value={bakery.averageRating ? parseFloat(bakery.averageRating) : 0}
                                                 precision={0.1}
                                                 readOnly
                                             />
                                             <Typography variant="body2" color="text.secondary" sx={{ marginLeft: '8px' }}>
-                                                {parseFloat(bakery.averageRating).toFixed(1)} / 5 ({bakery.reviewCount} отзывов)
+                                                {(bakery.averageRating ? parseFloat(bakery.averageRating).toFixed(1) : "0.0")} / 5 ({bakery.reviewCount || 0} отзывов)
                                             </Typography>
                                         </Box>
                                     </CardContent>

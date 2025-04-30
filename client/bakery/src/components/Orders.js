@@ -164,19 +164,42 @@ function Orders() {
                 <List>
                     {filteredOrders.map((order) => (
                         <React.Fragment key={order.id}>
-                            <ListItem alignItems="flex-start" sx={{ border: '1px solid #ccc', borderRadius: '4px', marginBottom: '10px', padding: '10px' }}>
+                            <ListItem
+                                alignItems="flex-start"
+                                sx={{
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    marginBottom: '10px',
+                                    padding: '10px',
+                                }}
+                            >
                                 <Box sx={{ width: '100%' }}>
                                     <Typography variant="h6">Заказ №{order.id}</Typography>
                                     <ListItemText primary={`Адрес доставки: ${order.delivery_address}`} />
-                                    <ListItemText primary={`Дата заказа: ${new Date(order.date_of_ordering).toLocaleString()}`} />
-                                    <ListItemText primary={`Время готовности: ${order.completion_time}`} />
+                                    <ListItemText
+                                        primary={`Дата заказа: ${new Date(order.date_of_ordering).toLocaleString()}`}
+                                    />
+                                    <ListItemText
+                                        primary={`Время готовности: ${
+                                            order.completion_time ? order.completion_time : 'Ещё не выставлено'
+                                        }`}
+                                    />
                                     <ListItemText primary={`Статус: ${order.status}`} />
-                                    <ListItemText primary={`Итоговая сумма: ${order.total_cost} ₽`} />
-                                    <Typography variant="subtitle1" gutterBottom>Товары:</Typography>
+                                    <ListItemText
+                                        primary={`Итоговая сумма: ${
+                                            order.total_cost != null && !isNaN(order.total_cost)
+                                                ? `${order.total_cost} ₽`
+                                                : 'Ещё не выставлена'
+                                        }`}
+                                    />
+                                    <Typography variant="subtitle1" gutterBottom>
+                                        Товары:
+                                    </Typography>
                                     <List sx={{ listStyleType: 'disc', paddingLeft: '20px' }}>
                                         {order.OrderItems.map((item) => (
                                             <ListItem key={item.id} sx={{ display: 'list-item' }}>
-                                                {item.Product.name} x {item.quantity} = {item.Product.price * item.quantity} ₽
+                                                {item.Product.name} x {item.quantity} ={' '}
+                                                {item.Product.price * item.quantity} ₽
                                             </ListItem>
                                         ))}
                                     </List>
@@ -185,11 +208,14 @@ function Orders() {
                                             variant="contained"
                                             color="primary"
                                             onClick={() => setSelectedOrder(order)}
-                                            sx={{ marginTop: '10px',  backgroundColor: '#F0C422',
-                                            transition: 'background-color 0.3s',
+                                            sx={{
+                                                marginTop: '10px',
+                                                backgroundColor: '#F0C422',
+                                                transition: 'background-color 0.3s',
                                                 '&:hover': {
-                                                backgroundColor: '#E8BD20'
-                                        } }}
+                                                    backgroundColor: '#E8BD20',
+                                                },
+                                            }}
                                         >
                                             Написать отзыв
                                         </Button>

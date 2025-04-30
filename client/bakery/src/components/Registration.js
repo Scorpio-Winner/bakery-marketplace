@@ -22,6 +22,7 @@ function Registration() {
         bakeryPhone: '',
         bakeryDescription: '',
         address: '',
+        is_individual_order_avaliable: false,
     });
     const [photo, setPhoto] = useState(null); 
     const [photoUploaded, setPhotoUploaded] = useState(false); 
@@ -31,6 +32,13 @@ function Registration() {
     const handleRoleChange = (e) => {
         setRole(e.target.value);
     };
+
+    const handleIndividualOrderChange = (e) => {
+        setFormData((prev) => ({
+          ...prev,
+          is_individual_order_avaliable: e.target.value === 'true',
+        }));
+      };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -64,6 +72,7 @@ function Registration() {
             data.append('phone', formData.bakeryPhone);
             data.append('description', formData.bakeryDescription);
             data.append('address', formData.address);
+            data.append('is_individual_order_avaliable', formData.is_individual_order_avaliable ? 'true' : 'false');
         }
 
         data.append('email', formData.email);
@@ -212,6 +221,17 @@ function Registration() {
                             value={formData.address}
                             onChange={handleChange}
                         />
+                        <FormControl fullWidth>
+                        <InputLabel>Будут ли выполняться индивидуальные заказы?</InputLabel>
+                        <Select
+                            value={formData.is_individual_order_avaliable ? 'true' : 'false'}
+                            label="Будут ли выполняться индивидуальные заказы?"
+                            onChange={handleIndividualOrderChange}
+                        >
+                            <MenuItem value="true">Да</MenuItem>
+                            <MenuItem value="false">Нет</MenuItem>
+                        </Select>
+                        </FormControl>
                         <TextField
                             label="Описание"
                             name="bakeryDescription"

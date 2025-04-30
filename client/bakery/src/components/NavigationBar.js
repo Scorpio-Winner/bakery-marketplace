@@ -1,119 +1,130 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { AppBar, Toolbar, Button, Container } from '@mui/material';
+import {
+    AppBar,
+    Toolbar,
+    Button,
+    Container,
+    IconButton,
+    Menu,
+    MenuItem,
+    useMediaQuery
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useTheme } from '@mui/material/styles';
 
 const NavigationBar = () => {
     const { authData, logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    console.log('NavigationBar: authData.role is', authData.role, 'isAuthenticated:', authData.isAuthenticated);
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const commonButtonStyle = {
+        marginRight: 2,
+        backgroundColor: '#F0C422',
+        transition: 'background-color 0.3s',
+        '&:hover': {
+            backgroundColor: '#E8BD20',
+        }
+    };
+
+    const renderButtons = () => {
+        const buttons = [];
+
+        if (authData.role === 'user') {
+            buttons.push(
+                <Button key="orders" component={Link} to="/orders" color="inherit" sx={commonButtonStyle}>Мои заказы</Button>,
+                <Button key="home" component={Link} to="/" color="inherit" sx={commonButtonStyle}>Главная</Button>,
+                <Button key="cart" component={Link} to="/cart" color="inherit" sx={commonButtonStyle}>Корзина</Button>,
+                <Button key="profile" component={Link} to="/profile" color="inherit" sx={commonButtonStyle}>Профиль</Button>
+            );
+        }
+
+        if (authData.role === 'bakery') {
+            buttons.push(
+                <Button key="bakery-admin" component={Link} to="/bakery-admin" color="inherit" sx={commonButtonStyle}>
+                    Управление пекарней
+                </Button>
+            );
+        }
+
+        if (!authData.isAuthenticated) {
+            buttons.push(
+                <Button key="register" component={Link} to="/register" color="inherit" sx={commonButtonStyle}>Регистрация</Button>,
+                <Button key="login" component={Link} to="/login" color="inherit" sx={commonButtonStyle}>Вход</Button>
+            );
+        }
+
+        if (authData.isAuthenticated) {
+            buttons.push(
+                <Button key="logout" color="inherit" onClick={handleLogout} sx={commonButtonStyle}>Выход</Button>
+            );
+        }
+
+        return buttons;
+    };
+
     return (
         <AppBar position="static" style={{ backgroundColor: '#F0C422' }}>
             <Container maxWidth="lg">
-                <Toolbar>
-                    {authData.role === 'user' && (
+                <Toolbar disableGutters sx={{ justifyContent: 'flex-start' }}>
+                    {isMobile ? (
                         <>
-                            <Button component={Link} to="/orders" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                                Мои заказы
-                            </Button>
-                            <Button component={Link} to="/" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                                Главная
-                            </Button>
-                            <Button component={Link} to="/cart" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                                Корзина
-                            </Button>
+                            <IconButton
+                            size="large"
+                            edge="start"
+                            color="inherit"
+                            aria-label="menu"
+                            onClick={handleMenuOpen}
+                            sx={{ marginLeft: 1 }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                            <Menu
+                            anchorEl={anchorEl}
+                            open={Boolean(anchorEl)}
+                            onClose={handleMenuClose}
+                            PaperProps={{
+                                sx: {
+                                    backgroundColor: '#F0C422',
+                                    color: 'white',
+                                },
+                            }}
+                        >
+                            {renderButtons().map((button, index) => (
+                                <MenuItem
+                                    key={index}
+                                    onClick={handleMenuClose}
+                                    sx={{
+                                        color: 'white',
+                                        '&:hover': {
+                                            backgroundColor: '#e0b920',
+                                        }
+                                    }}
+                                >
+                                    {button}
+                                </MenuItem>
+                            ))}
+                        </Menu>
                         </>
-                    )}
-                    {authData.role === 'bakery' && (
-                        <Button component={Link} to="/bakery-admin" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                            Управление пекарней
-                        </Button>
-                    )}
-                    {authData.role === 'user' && (
-                        <Button component={Link} to="/profile" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                            Профиль
-                        </Button>
-                    )}
-                    {!authData.isAuthenticated && (
-                        <>
-                            <Button component={Link} to="/register" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                                Регистрация
-                            </Button>
-                            <Button component={Link} to="/login" color="inherit" sx={{
-                            marginRight: 2,    
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}>
-                                Вход
-                            </Button>
-                        </>
-                    )}
-                    {authData.isAuthenticated && (
-                        <Button
-                        color="inherit"
-                        onClick={handleLogout}
-                        sx={{
-                            backgroundColor: '#F0C422',
-                            transition: 'background-color 0.3s',
-                            '&:hover': {
-                                backgroundColor: '#E8BD20'
-                            }
-                        }}
-                    >
-                        Выход
-                    </Button>
+                    ) : (
+                        renderButtons()
                     )}
                 </Toolbar>
             </Container>

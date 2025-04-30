@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
-import { Container, Typography, TextField, Button, Box, InputLabel, CardMedia } from '@mui/material';
+import { Container, Typography, TextField, Button, Box, InputLabel, CardMedia, Select, MenuItem, FormControl } from '@mui/material';
 
 function EditBakeryInfo() {
     const { authData } = useContext(AuthContext);
@@ -14,6 +14,7 @@ function EditBakeryInfo() {
         phone: '',
         description: '',
         address: '',
+        is_individual_order_avaliable: '',
     });
     const [photo, setPhoto] = useState(null);
     const [currentPhoto, setCurrentPhoto] = useState(null);
@@ -32,6 +33,7 @@ function EditBakeryInfo() {
                 phone: response.data.phone,
                 description: response.data.description,
                 address: response.data.address,
+                is_individual_order_avaliable: response.data.is_individual_order_avaliable,
             });
             setCurrentPhoto(response.data.photo);
         } catch (error) {
@@ -47,6 +49,13 @@ function EditBakeryInfo() {
         setPhoto(e.target.files[0]);
     };
 
+    const handleIndividualOrderChange = (e) => {
+        setFormData((prev) => ({
+          ...prev,
+          is_individual_order_avaliable: e.target.value === 'true',
+        }));
+      };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -57,6 +66,7 @@ function EditBakeryInfo() {
         data.append('phone', formData.phone);
         data.append('description', formData.description);
         data.append('address', formData.address);
+        data.append('is_individual_order_avaliable', formData.is_individual_order_avaliable);
 
         if (photo) {
             data.append('photo', photo);
@@ -131,6 +141,17 @@ function EditBakeryInfo() {
                     value={formData.address}
                     onChange={handleChange}
                 />
+                <FormControl fullWidth>
+                        <InputLabel>Будут ли выполняться индивидуальные заказы?</InputLabel>
+                        <Select
+                            value={formData.is_individual_order_avaliable ? 'true' : 'false'}
+                            label="Будут ли выполняться индивидуальные заказы?"
+                            onChange={handleIndividualOrderChange}
+                        >
+                            <MenuItem value="true">Да</MenuItem>
+                            <MenuItem value="false">Нет</MenuItem>
+                        </Select>
+                        </FormControl>
                 <TextField
                     label="Описание"
                     name="description"
