@@ -64,7 +64,6 @@ const IndividualOrder = sequelize.define('IndividualOrder', {
   total_cost: { type: DataTypes.INTEGER, allowNull: true },
   status: { type: DataTypes.STRING, allowNull: false },
   completion_time: { type: DataTypes.STRING, allowNull: true },
-  name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.STRING, allowNull: true },
   date_of_ordering: { type: DataTypes.DATE, allowNull: false },
   photo: { type: DataTypes.STRING, allowNull: false },

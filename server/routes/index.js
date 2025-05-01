@@ -6,6 +6,7 @@ router.use('/reviews', require('./reviewRouter'));
 router.use('/products', require('./productRouter'));
 router.use('/bakeries', require('./bakeryRouter'));
 router.use('/orders', require('./orderRouter'));
+router.use('/individualOrders', require('./individualOrderRouter'));
 router.use('/baskets', require('./basketRouter'));
 
 

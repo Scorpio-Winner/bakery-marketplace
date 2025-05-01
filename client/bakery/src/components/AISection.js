@@ -14,7 +14,7 @@ import {
 import { saveAs } from 'file-saver';
 import IndividualOrderForm from './IndividualOrderForm'; 
 
-const AISection = ({ bakery, authData }) => {
+const AISection = ({ bakery }) => {
   const [description, setDescription] = useState('');
   const [newPromt, setNewPromt] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -130,7 +130,7 @@ const AISection = ({ bakery, authData }) => {
   
           const payload = {
             prompt: translatedText,
-            steps: 30,
+            steps: 30, //30
           };
   
           const response = await fetch('http://127.0.0.1:7860/sdapi/v1/txt2img', {
@@ -344,7 +344,7 @@ const AISection = ({ bakery, authData }) => {
                     </Button>
                     {showOrderForm && (
                         <Box sx={{ marginTop: '1vh' }}>
-                            <IndividualOrderForm />
+                            <IndividualOrderForm imageFile={file} bakery={bakery} />
                         </Box>
                     )}
                 </>

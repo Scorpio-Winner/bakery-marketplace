@@ -264,8 +264,8 @@ function BakeryDetails() {
                         <Typography variant="body1">Товары не найдены.</Typography>
                     )}
                     {/* AI-блок – только если разрешена индивидуальная генерация и пользователь имеет роль "user" */}
-                    {bakery.is_individual_order_avaliable && localStorage.getItem('role') === 'user' && (
-                        <AISection bakery={bakery} authData={authData} />
+                    {bakery.is_individual_order_avaliable && localStorage.getItem('role') === 'user' && (                        
+                        <AISection bakery={bakery}/>
                     )}
 
                     <Typography

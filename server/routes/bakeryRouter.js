@@ -2,6 +2,7 @@ const express = require('express');
 const BakeryController = require('../controllers/bakeryController');
 const authenticateToken = require('../middleware/authenticateToken');
 const OrderController = require('../controllers/orderController');
+const IndividualOrderController = require('../controllers/individualOrderController');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -23,6 +24,7 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.get('/orders', authenticateToken, OrderController.getBakeryOrders);
+router.get('/individualOrders', authenticateToken, IndividualOrderController.getBakeryIndividualOrders);
 router.post('/registration', upload.single('photo'), BakeryController.registration);
 router.post('/login', BakeryController.login);
 router.get('/auth', authenticateToken, BakeryController.auth);

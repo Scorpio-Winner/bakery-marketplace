@@ -17,12 +17,14 @@ import {
     DialogContent,
     DialogContentText,
     DialogActions,
+    CardMedia,
 } from '@mui/material';
 import { FaStar } from 'react-icons/fa';
 
 function Orders() {
     const { authData } = useContext(AuthContext);
     const [orders, setOrders] = useState([]);
+    const [individualOrders, setIndividualOrders] = useState([]);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -36,16 +38,18 @@ function Orders() {
     const [searchStatus, setSearchStatus] = useState('');
     const [openDialog, setOpenDialog] = useState(false);
     const [orderToCancel, setOrderToCancel] = useState(null);
+    const [viewType, setViewType] = useState('regular'); // 'regular' or 'individual'
 
     const allowedStatuses = ['на рассмотрении', 'выполняется', 'выполнен', 'отменён'];
 
     useEffect(() => {
         fetchOrders();
+        fetchIndividualOrders();
     }, []);
 
     useEffect(() => {
         filterOrders();
-    }, [searchDate, searchStatus, orders]);
+    }, [searchDate, searchStatus, orders, individualOrders, viewType]);
 
     const fetchOrders = async () => {
         try {
@@ -55,7 +59,6 @@ function Orders() {
                 },
             });
             setOrders(response.data);
-            setFilteredOrders(response.data);
             setLoading(false);
         } catch (error) {
             console.error('Ошибка при получении заказов пользователя:', error);
@@ -63,8 +66,23 @@ function Orders() {
         }
     };
 
+    const fetchIndividualOrders = async () => {
+        try {
+            const response = await axios.get('/api/individualOrders', {
+                headers: {
+                    Authorization: `Bearer ${authData.token}`,
+                },
+            });
+            setIndividualOrders(response.data);
+            console.log('Individual orders:', response.data);
+        } catch (error) {
+            console.error('Ошибка при получении индивидуальных заказов:', error);
+        }        
+    };
+
     const filterOrders = () => {
-        let filtered = [...orders];
+        let selected = viewType === 'regular' ? orders : individualOrders;
+        let filtered = [...selected];
 
         if (searchDate) {
             filtered = filtered.filter((order) =>
@@ -81,22 +99,40 @@ function Orders() {
 
     const handleCancelOrder = async () => {
         if (!orderToCancel) return;
-
+    
         try {
-            await axios.put(
-                `/api/orders/${orderToCancel}/status`,
-                { status: 'отменён' },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authData.token}`,
-                    },
-                }
-            );
-            setOrders((prevOrders) =>
-                prevOrders.map((order) =>
-                    order.id === orderToCancel ? { ...order, status: 'отменён' } : order
-                )
-            );
+            let cancelUrl = '';  // URL для отмены зависит от типа заказа
+            const cancelData = { status: 'отменён' };
+    
+            // Определим, с каким типом заказа работаем
+            if (viewType === 'regular') {
+                cancelUrl = `/api/orders/${orderToCancel}/status`;
+            } else if (viewType === 'individual') {
+                cancelUrl = `/api/individualOrders/${orderToCancel}/status`;
+            }
+    
+            // Отправка запроса на отмену
+            await axios.put(cancelUrl, cancelData, {
+                headers: {
+                    Authorization: `Bearer ${authData.token}`,
+                },
+            });
+    
+            // Обновим состояние заказов
+            if (viewType === 'regular') {
+                setOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.id === orderToCancel ? { ...order, status: 'отменён' } : order
+                    )
+                );
+            } else if (viewType === 'individual') {
+                setIndividualOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.id === orderToCancel ? { ...order, status: 'отменён' } : order
+                    )
+                );
+            }
+    
             alert('Заказ успешно отменён.');
         } catch (error) {
             console.error('Ошибка при отмене заказа:', error);
@@ -156,10 +192,44 @@ function Orders() {
                 Мои заказы
             </Typography>
 
+            <Box sx={{ display: 'flex', gap: 2, marginBottom: 2, flexDirection: { xs: 'column', sm: 'row' }, }}>
+                <Button
+                    variant="contained"
+                    onClick={() => setViewType('regular')}
+                    sx={{
+                        backgroundColor: viewType === 'regular' ? '#F0C422' : 'transparent',
+                        color: viewType === 'regular' ? '#fff' : '#000',
+                        border: '1px solid #F0C422',
+                        transition: 'background-color 0.3s, color 0.3s',
+                        '&:hover': {
+                            backgroundColor: '#E8BD20',
+                        },
+                    }}
+                >
+                    Обычные заказы
+                </Button>
+                <Button
+                    variant="contained"
+                    onClick={() => setViewType('individual')}
+                    sx={{
+                        backgroundColor: viewType === 'individual' ? '#F0C422' : 'transparent',
+                        color: viewType === 'individual' ? '#fff' : '#000',
+                        border: '1px solid #F0C422',
+                        transition: 'background-color 0.3s, color 0.3s',
+                        '&:hover': {
+                            backgroundColor: '#E8BD20',
+                        },
+                    }}
+                >
+                    Индивидуальные заказы
+                </Button>
+            </Box>
+
+
             {loading ? (
                 <CircularProgress />
             ) : filteredOrders.length === 0 ? (
-                <Typography>У вас ещё нет заказов.</Typography>
+                <Typography>Нет заказов для отображения.</Typography>
             ) : (
                 <List>
                     {filteredOrders.map((order) => (
@@ -193,16 +263,44 @@ function Orders() {
                                         }`}
                                     />
                                     <Typography variant="subtitle1" gutterBottom>
-                                        Товары:
-                                    </Typography>
-                                    <List sx={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-                                        {order.OrderItems.map((item) => (
-                                            <ListItem key={item.id} sx={{ display: 'list-item' }}>
-                                                {item.Product.name} x {item.quantity} ={' '}
-                                                {item.Product.price * item.quantity} ₽
-                                            </ListItem>
-                                        ))}
-                                    </List>
+                                                Описание: {order.description || 'Не указано'}
+                                            </Typography>
+
+                                    {viewType === 'regular' ? (
+                                        <>
+                                            <Typography variant="subtitle1" gutterBottom>
+                                                Товары:
+                                            </Typography>
+                                            <List sx={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+                                                {order.OrderItems?.map((item) => (
+                                                    <ListItem key={item.id} sx={{ display: 'list-item' }}>
+                                                        {item?.Product?.name} x {item.quantity} ={' '}
+                                                        {item?.Product?.price * item.quantity} ₽
+                                                    </ListItem>
+                                                ))}
+                                            </List>
+                                        </>
+                                    ) : (
+                                        <>                                           
+                                            {order.photo && (
+                                                <CardMedia
+                                                    component="img"
+                                                    image={`http://localhost:5000${order.photo}`}
+                                                    alt="Фото индивидуального заказа"
+                                                    sx={{
+                                                        width: '30%',
+                                                        height: 'auto',
+                                                        borderRadius: 2,
+                                                        marginTop: 2,
+                                                        marginBottom: 2,
+                                                        cursor: 'pointer',
+                                                    }}
+                                                    onClick={() => window.open(`http://localhost:5000${order.photo}`, '_blank')} // Открытие изображения в новом окне
+                                                />
+                                            )}
+                                        </>
+                                    )}
+
                                     {order.status === 'выполнен' && !order.Review && (
                                         <Button
                                             variant="contained"
@@ -241,6 +339,7 @@ function Orders() {
                 </List>
             )}
 
+            {/* Модалка для отзыва */}
             {selectedOrder && (
                 <Dialog open={Boolean(selectedOrder)} onClose={() => setSelectedOrder(null)}>
                     <DialogTitle>Написать отзыв</DialogTitle>
@@ -276,7 +375,7 @@ function Orders() {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={() => setSelectedOrder(null)} color="primary" >
+                        <Button onClick={() => setSelectedOrder(null)} color="primary">
                             Отмена
                         </Button>
                         <Button
@@ -286,10 +385,10 @@ function Orders() {
                             disabled={submitting}
                             sx={{
                                 backgroundColor: '#F0C422',
-                                    transition: 'background-color 0.3s',
-                                        '&:hover': {
-                                        backgroundColor: '#E8BD20'
-                                }
+                                transition: 'background-color 0.3s',
+                                '&:hover': {
+                                    backgroundColor: '#E8BD20',
+                                },
                             }}
                         >
                             {submitting ? 'Отправка...' : 'Отправить'}
@@ -298,6 +397,7 @@ function Orders() {
                 </Dialog>
             )}
 
+            {/* Модалка для отмены */}
             <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
                 <DialogTitle>Подтверждение отмены</DialogTitle>
                 <DialogContent>

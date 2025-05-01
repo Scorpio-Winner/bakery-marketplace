@@ -1,12 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { CartContext } from '../context/CartContext';
 import axios from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext'; 
+import { AuthContext } from '../context/AuthContext';
+import { useParams } from 'react-router-dom'; 
 import { Container, Typography, TextField, Button, Box } from '@mui/material';
 
-function IndividualOrderForm() {
-    const { clearCart } = useContext(CartContext);
+function IndividualOrderForm({ imageFile, bakery }) {
     const { authData } = useContext(AuthContext); 
     const [formData, setFormData] = useState({
         delivery_address: '',
@@ -21,17 +20,26 @@ function IndividualOrderForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         setLoading(true);
-
+    
         try {
-            const response = await axios.post('/api/orders', formData, {
+            const formDataToSend = new FormData();
+            formDataToSend.append('delivery_address', formData.delivery_address);
+            formDataToSend.append('description', formData.description);
+            if (imageFile) {
+                formDataToSend.append('photo', imageFile, 'custom_image.png'); 
+            }
+            
+            formDataToSend.append('bakeryId', bakery.id);
+    
+            const response = await axios.post('/api/individualOrders', formDataToSend,  {
                 headers: {
                     'Authorization': `Bearer ${authData.token}`,
+                    'Content-Type': 'multipart/form-data',
                 },
             });
+    
             alert('Заказ успешно оформлен!');
-            clearCart();
             navigate('/orders');
         } catch (error) {
             console.error('Ошибка при оформлении заказа:', error);
