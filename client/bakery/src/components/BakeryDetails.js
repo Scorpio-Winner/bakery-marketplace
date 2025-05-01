@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { AuthContext } from '../context/AuthContext';
+import AISection from '../components/AISection';
 import {
     Container,
     Typography,
@@ -106,21 +107,51 @@ function BakeryDetails() {
                     <Typography variant="h3" component="h1" gutterBottom>
                         {bakery.name}
                     </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                        <Typography variant="h6" sx={{ marginRight: '8px' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap' }}>
+                        <Typography
+                            variant="h6"
+                            sx={{
+                            marginRight: '8px',
+                            fontSize: { xs: '1rem', sm: '1.25rem' },
+                            '@media (max-width:389px)': {
+                                fontSize: '0.875rem'
+                            }
+                            }}
+                        >
                             Рейтинг:
                         </Typography>
+
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             {renderStars(calculateAverageRating())}
-                            <Typography variant="h6" sx={{ marginLeft: '8px' }}>
-                                {calculateAverageRating()} / 5
+                            <Typography
+                            variant="h6"
+                            sx={{
+                                marginLeft: '8px',
+                                fontSize: { xs: '1rem', sm: '1.25rem' },
+                                '@media (max-width:389px)': {
+                                fontSize: '0.875rem'
+                                }
+                            }}
+                            >
+                            {calculateAverageRating()} / 5
                             </Typography>
                         </Box>
-                        <Typography variant="body2" sx={{ marginLeft: '8px', color: '#555' }}>
+
+                        <Typography
+                            variant="body2"
+                            sx={{
+                            marginLeft: '8px',
+                            color: '#555',
+                            fontSize: { xs: '0.875rem', sm: '1rem' },
+                            '@media (max-width:389px)': {
+                                fontSize: '0.75rem',
+                                marginLeft: '0',
+                            }
+                            }}
+                        >
                             ({reviews.length} отзывов)
                         </Typography>
-                    </Box>
-
+                        </Box>
                     {bakery.photo && (
                         <CardMedia
                             component="img"
@@ -231,6 +262,10 @@ function BakeryDetails() {
                         </Grid>
                     ) : (
                         <Typography variant="body1">Товары не найдены.</Typography>
+                    )}
+                    {/* AI-блок – только если разрешена индивидуальная генерация и пользователь имеет роль "user" */}
+                    {bakery.is_individual_order_avaliable && localStorage.getItem('role') === 'user' && (
+                        <AISection bakery={bakery} authData={authData} />
                     )}
 
                     <Typography

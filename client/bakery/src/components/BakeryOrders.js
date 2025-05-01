@@ -162,7 +162,7 @@ function BakeryOrders() {
                 Управление данными о заказах
             </Typography>
 
-            <Box sx={{ display: 'flex', gap: 2, marginBottom: '20px' }}>
+            <Box sx={{ display: 'flex', gap: 2, marginBottom: '20px', flexDirection: { xs: 'column', sm: 'row' } }}>
                 <TextField
                     label="Поиск по дате (ГГГГ-ММ-ДД)"
                     type="date"

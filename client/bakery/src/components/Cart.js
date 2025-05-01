@@ -42,52 +42,74 @@ function Cart() {
                             {error}
                         </Alert>
                     )}
-                    <Grid container spacing={4}>
-                        {cartItems.map(item => (
-                            <Grid item xs={12} key={item.productId}>
-                                <Card sx={{ display: 'flex', marginBottom: '20px' }}>
-                                    {item.Product && item.Product.photo && (
-                                        <CardMedia
-                                            component="img"
-                                            image={`http://localhost:5000${item.Product.photo}`}
-                                            alt={item.Product.name}
-                                            sx={{ width: 150, height: 'auto' }}
-                                        />
-                                    )}
-                                    <CardContent sx={{ flex: 1 }}>
-                                        <Typography variant="h5" component="h3">
-                                            {item.Product ? item.Product.name : 'Продукт не найден'}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary" paragraph>
-                                            {item.Product ? item.Product.description : 'Описание отсутствует'}
-                                        </Typography>
-                                        <Typography variant="body1" color="text.primary">
-                                            Цена за единицу: {item.Product ? item.Product.price : '0'} ₽
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-                                            <TextField
-                                                label="Количество"
-                                                type="number"
-                                                inputProps={{ min: 1 }}
-                                                value={item.quantity}
-                                                onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
-                                                sx={{ width: '80px', marginRight: '10px' }}
-                                            />
-                                            <Button
-                                                variant="outlined"
-                                                color="secondary"
-                                                onClick={() => removeFromCart(item.productId)}
-                                            >
-                                                Удалить
-                                            </Button>
-                                        </Box>
-                                        <Typography variant="body1" sx={{ marginTop: '10px' }}>
-                                            Итого: {item.Product ? item.Product.price * item.quantity : 0} ₽
-                                        </Typography>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
+                   <Grid container spacing={4}>
+                    {cartItems.map(item => (
+                        <Grid item xs={12} key={item.productId}>
+                        <Card
+                            sx={{
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' }, // вертикально на маленьких экранах
+                            marginBottom: '20px'
+                            }}
+                        >
+                            {item.Product && item.Product.photo && (
+                            <CardMedia
+                                component="img"
+                                image={`http://localhost:5000${item.Product.photo}`}
+                                alt={item.Product.name}
+                                sx={{
+                                width: { xs: '100%', sm: 150 },
+                                height: { xs: 200, sm: 'auto' },
+                                objectFit: 'cover'
+                                }}
+                            />
+                            )}
+                            <CardContent sx={{ flex: 1 }}>
+                            <Typography variant="h6" component="h3">
+                                {item.Product ? item.Product.name : 'Продукт не найден'}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary" paragraph>
+                                {item.Product ? item.Product.description : 'Описание отсутствует'}
+                            </Typography>
+                            <Typography variant="body1" color="text.primary">
+                                Цена за единицу: {item.Product ? item.Product.price : '0'} ₽
+                            </Typography>
+
+                            <Box
+                                sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginTop: '10px',
+                                flexWrap: 'wrap', // адаптивный перенос
+                                gap: '10px'
+                                }}
+                            >
+                                <TextField
+                                label="Количество"
+                                type="number"
+                                inputProps={{ min: 1 }}
+                                value={item.quantity}
+                                onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
+                                sx={{ width: { xs: '100px', sm: '80px' } }}
+                                size="small"
+                                />
+                                <Button
+                                variant="outlined"
+                                color="secondary"
+                                onClick={() => removeFromCart(item.productId)}
+                                size="small"
+                                >
+                                Удалить
+                                </Button>
+                            </Box>
+
+                            <Typography variant="body1" sx={{ marginTop: '10px' }}>
+                                Итого: {item.Product ? item.Product.price * item.quantity : 0} ₽
+                            </Typography>
+                            </CardContent>
+                        </Card>
+                        </Grid>
+                    ))}
                     </Grid>
                     <Divider sx={{ marginY: '20px' }} />
                     <Typography variant="h4" component="h2">
