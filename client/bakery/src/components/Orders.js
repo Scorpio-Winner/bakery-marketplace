@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import {
     Container,
     Typography,
@@ -42,9 +43,26 @@ function Orders() {
 
     const allowedStatuses = ['на рассмотрении', 'выполняется', 'выполнен', 'отменён'];
 
+    const [bakeries, setBakeries] = useState([]);
+
+    const fetchBakeries = async () => {
+        try {
+            const response = await axios.get('/api/bakeries', {
+                headers: {
+                    Authorization: `Bearer ${authData.token}`,
+                },
+            });
+            setBakeries(response.data.bakeries);
+            console.log('Bakeries response:', response.data);
+        } catch (error) {
+            console.error('Ошибка при получении списка пекарен:', error);
+        }
+    };
+
     useEffect(() => {
         fetchOrders();
         fetchIndividualOrders();
+        fetchBakeries();
     }, []);
 
     useEffect(() => {
@@ -152,33 +170,53 @@ function Orders() {
         setReviewData((prev) => ({ ...prev, rating }));
     };
 
+    const getBakeryName = (bakeryId) => {
+        const bakery = bakeries.find((b) => b.id === bakeryId);
+        return bakery ? bakery.name : 'Неизвестная пекарня';
+    };
+
     const handleSubmitReview = async (e) => {
         e.preventDefault();
-
+    
         if (!reviewData.short_review.trim() || !reviewData.description.trim()) {
             alert('Пожалуйста, заполните все поля');
             return;
         }
-
+    
+        if (!selectedOrder) {
+            alert('Пожалуйста, выберите заказ');
+            return;
+        }
+    
+        // Определяем, какой тип заказа (обычный или индивидуальный)
+        const isRegular = viewType === 'regular';
+        const isIndividual = viewType === 'individual';
+    
+        const payload = {
+            ...reviewData,
+            orderId: isRegular ? selectedOrder.id : null,  // Используем ID обычного заказа
+            individualOrderId: isIndividual ? selectedOrder.id : null,  // Используем ID индивидуального заказа
+        };
+    
+        if (!payload.orderId && !payload.individualOrderId) {
+            alert('Не удалось определить тип заказа');
+            return;
+        }
+    
         setSubmitting(true);
         try {
-            await axios.post(
-                '/api/reviews',
-                {
-                    ...reviewData,
-                    orderId: selectedOrder.id,
+            await axios.post('/api/reviews', payload, {
+                headers: {
+                    Authorization: `Bearer ${authData.token}`,
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${authData.token}`,
-                    },
-                }
-            );
+            });
+    
             alert('Отзыв успешно создан!');
             setSubmitting(false);
             setSelectedOrder(null);
             setReviewData({ rating: 5, short_review: '', description: '' });
             fetchOrders();
+            fetchIndividualOrders();
         } catch (error) {
             console.error('Ошибка при создании отзыва:', error);
             alert(error.response?.data?.message || 'Не удалось создать отзыв');
@@ -245,6 +283,26 @@ function Orders() {
                             >
                                 <Box sx={{ width: '100%' }}>
                                     <Typography variant="h6">Заказ №{order.id}</Typography>
+                                    <ListItemText
+                                        primary={
+                                            <>
+                                            Пекарня:{' '}
+                                            <Link
+                                                to={`/bakeries/${order.bakeryId}`}
+                                                style={{
+                                                backgroundColor: '#F0C422',
+                                                color: '#fff',
+                                                textDecoration: 'none',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px',
+                                                display: 'inline-block',
+                                                }}
+                                            >
+                                                {getBakeryName(order.bakeryId)}
+                                            </Link>
+                                            </>
+                                        }
+                                        />
                                     <ListItemText primary={`Адрес доставки: ${order.delivery_address}`} />
                                     <ListItemText
                                         primary={`Дата заказа: ${new Date(order.date_of_ordering).toLocaleString()}`}

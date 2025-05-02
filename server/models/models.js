@@ -80,7 +80,8 @@ const Review = sequelize.define('Review', {
   short_review: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.STRING, allowNull: false },
   userId: { type: DataTypes.INTEGER, allowNull: false },
-  orderId: { type: DataTypes.INTEGER, allowNull: false },
+  orderId: { type: DataTypes.INTEGER, allowNull: true },
+  individualOrderId: { type: DataTypes.INTEGER, allowNull: true },
   bakeryId: { type: DataTypes.INTEGER, allowNull: false },
 }, { timestamps: true });
 

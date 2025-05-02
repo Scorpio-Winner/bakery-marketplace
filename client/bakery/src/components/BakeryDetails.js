@@ -157,7 +157,7 @@ function BakeryDetails() {
                             component="img"
                             image={`http://localhost:5000${bakery.photo}`}
                             alt={bakery.name}
-                            sx={{ width: '300px', height: 'auto', marginBottom: '20px' }}
+                            sx={{ width: '20vw', height: 'auto', marginBottom: '20px' }}
                         />
                     )}
                     <Typography variant="body1" paragraph>

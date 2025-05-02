@@ -120,7 +120,7 @@ function Profile() {
 
     return (
         <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h4" gutterBottom align="center">
                 Профиль пользователя
             </Typography>
             <ToastContainer />
@@ -130,7 +130,7 @@ function Profile() {
                         <Avatar
                             src={formData.photo ? URL.createObjectURL(formData.photo) : `http://localhost:5000${user.photo}`}
                             alt="Фото профиля"
-                            sx={{ width: 250, height: 250, mx: 'auto' }}
+                            sx={{ width: '15vw', height: 'auto', mx: 'auto' }}
                         />
                         <IconButton color="primary" component="label">
                             <PhotoCamera />

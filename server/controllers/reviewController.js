@@ -1,45 +1,70 @@
-const { Review, User, Bakery, Order } = require('../models/models');
+const { Review, User, Bakery, Order, IndividualOrder } = require('../models/models');
 
 class ReviewController {
 
     async createReview(req, res) {
         try {
-            const { rating, short_review, description, orderId } = req.body;
+            const { rating, short_review, description, orderId, individualOrderId } = req.body;
             const userId = req.user.userId;
-
+    
             if (!userId) {
                 return res.status(401).json({ message: 'Неавторизованный пользователь' });
             }
-
-            const order = await Order.findByPk(orderId);
-            if (!order) {
-                return res.status(404).json({ message: 'Заказ не найден' });
+    
+            let bakeryId;
+    
+            if (orderId) {
+                // Проверка обычного заказа
+                const order = await Order.findByPk(orderId);
+                if (!order) {
+                    return res.status(404).json({ message: 'Обычный заказ не найден' });
+                }
+                if (order.status !== 'выполнен') {
+                    return res.status(400).json({ message: 'Отзыв можно оставить только для выполненных заказов' });
+                }
+    
+                const existingReview = await Review.findOne({ where: { orderId } });
+                if (existingReview) {
+                    return res.status(400).json({ message: 'Отзыв для данного заказа уже существует' });
+                }
+    
+                bakeryId = order.bakeryId;
+            } else if (individualOrderId) {
+                // Проверка индивидуального заказа
+                const individualOrder = await IndividualOrder.findByPk(individualOrderId);
+                if (!individualOrder) {
+                    return res.status(404).json({ message: 'Индивидуальный заказ не найден' });
+                }
+                if (individualOrder.status !== 'выполнен') {
+                    return res.status(400).json({ message: 'Отзыв можно оставить только для выполненных заказов' });
+                }
+    
+                const existingReview = await Review.findOne({ where: { individualOrderId } });
+                if (existingReview) {
+                    return res.status(400).json({ message: 'Отзыв для данного индивидуального заказа уже существует' });
+                }
+    
+                bakeryId = individualOrder.bakeryId;
+            } else {
+                return res.status(400).json({ message: 'Не указан заказ (orderId или individualOrderId)' });
             }
-
-            if (order.status !== 'выполнен') {
-                return res.status(400).json({ message: 'Отзыв можно оставить только для выполненных заказов' });
-            }
-
-            const existingReview = await Review.findOne({ where: { orderId } });
-            if (existingReview) {
-                return res.status(400).json({ message: 'Отзыв для данного заказа уже существует' });
-            }
-
-            const bakeryId = order.bakeryId;
-
+    
+            // Создание отзыва
             const review = await Review.create({
                 rating,
                 short_review,
                 description,
-                orderId,
+                orderId: orderId || null,  // Передаем NULL если нет обычного заказа
+                individualOrderId: individualOrderId || null,  // Передаем NULL если нет индивидуального заказа
                 bakeryId,
                 userId,
             });
-
-            res.status(201).json(review);
+    
+            return res.status(201).json({ message: 'Отзыв успешно создан', review });
+    
         } catch (error) {
             console.error('Ошибка при создании отзыва:', error);
-            res.status(500).json({ message: 'Ошибка сервера' });
+            return res.status(500).json({ message: 'Ошибка сервера при создании отзыва' });
         }
     }
 
@@ -50,6 +75,7 @@ class ReviewController {
             const review = await Review.findByPk(id, {
                 include: [
                     { model: Order },
+                    { model: IndividualOrder },
                     { model: Bakery },
                     { model: User, attributes: ['name', 'surname'] },
                 ],
@@ -71,6 +97,7 @@ class ReviewController {
             const reviews = await Review.findAll({
                 include: [
                     { model: Order },
+                    { model: IndividualOrder },
                     { model: Bakery },
                     { model: User, attributes: ['name', 'surname'] },
                 ],
@@ -143,6 +170,7 @@ class ReviewController {
                 where: { bakeryId },
                 include: [
                     { model: Order },
+                    { model: IndividualOrder },
                     { model: Bakery },
                     { model: User, attributes: ['name', 'surname'] },
                 ],
