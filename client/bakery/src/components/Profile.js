@@ -1,23 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
-import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {
-    Box,
-    Button,
-    CircularProgress,
-    Grid,
-    Input,
-    TextField,
-    Typography,
-    Avatar,
-    IconButton,
+    Box, Button, CircularProgress, Grid, TextField, Typography, Avatar, IconButton,
 } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 
 function Profile() {
+    const { userId } = useParams();
     const { authData } = useContext(AuthContext);
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -35,15 +28,27 @@ function Profile() {
 
     useEffect(() => {
         fetchUser();
-    }, []);
+    }, [userId]);
 
     const fetchUser = async () => {
         try {
-            const response = await axios.get('/api/users/auth', {
-                headers: {
-                    Authorization: `Bearer ${authData.token}`,
-                },
-            });
+            let response;
+            const isBakery = localStorage.getItem('role') === 'bakery';
+
+            if (isBakery && userId) {
+                response = await axios.get(`/api/users/${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${authData.token}`,
+                    },
+                });
+            } else {
+                response = await axios.get('/api/users/auth', {
+                    headers: {
+                        Authorization: `Bearer ${authData.token}`,
+                    },
+                });
+            }
+
             setUser(response.data);
             setFormData({
                 name: response.data.name || '',
@@ -55,10 +60,10 @@ function Profile() {
                 photo: null,
                 password: '',
             });
-            setLoading(false);
         } catch (error) {
             console.error('Ошибка при получении данных пользователя:', error);
             toast.error('Не удалось загрузить данные профиля');
+        } finally {
             setLoading(false);
         }
     };
@@ -66,9 +71,9 @@ function Profile() {
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'photo') {
-            setFormData(prev => ({ ...prev, photo: files[0] }));
+            setFormData((prev) => ({ ...prev, photo: files[0] }));
         } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            setFormData((prev) => ({ ...prev, [name]: value }));
         }
     };
 
@@ -105,18 +110,20 @@ function Profile() {
 
             setUser(response.data);
             toast.success('Профиль успешно обновлён');
-            setSubmitting(false);
-            setFormData(prev => ({ ...prev, password: '', photo: null }));
+            setFormData((prev) => ({ ...prev, password: '', photo: null }));
         } catch (error) {
             console.error('Ошибка при обновлении профиля:', error);
             toast.error(error.response?.data?.message || 'Не удалось обновить профиль');
+        } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading) {
-        return <CircularProgress />;
-    }
+    if (loading) return <Box textAlign="center" mt={5}><CircularProgress /></Box>;
+
+    const isBakery = localStorage.getItem('role') === 'bakery';
+    const isOwnProfile = !userId || Number(userId) === authData?.user?.id;
+    const canEdit = isOwnProfile && !isBakery;
 
     return (
         <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
@@ -128,61 +135,59 @@ function Profile() {
                 <Grid container spacing={2}>
                     <Grid item xs={12} sx={{ textAlign: 'center' }}>
                         <Avatar
-                            src={formData.photo ? URL.createObjectURL(formData.photo) : `http://localhost:5000${user.photo}`}
+                            src={
+                                formData.photo
+                                    ? URL.createObjectURL(formData.photo)
+                                    : user.photo
+                                        ? `http://localhost:5000${user.photo}`
+                                        : ''
+                            }
                             alt="Фото профиля"
-                            sx={{ width: '15vw', height: 'auto', mx: 'auto' }}
+                            sx={{ width: '15vw', height: '15vw', mx: 'auto' }}
                         />
-                        <IconButton color="primary" component="label">
-                            <PhotoCamera />
-                            <input
-                                type="file"
-                                name="photo"
-                                accept="image/*"
-                                hidden
+                        {canEdit && (
+                            <IconButton color="primary" component="label">
+                                <PhotoCamera />
+                                <input
+                                    type="file"
+                                    name="photo"
+                                    accept="image/*"
+                                    hidden
+                                    onChange={handleChange}
+                                />
+                            </IconButton>
+                        )}
+                    </Grid>
+
+                    {['name', 'surname', 'email', 'phone'].map((field, idx) => (
+                        <Grid item xs={12} key={idx}>
+                            <TextField
+                                label={
+                                    field === 'name'
+                                        ? 'Имя*'
+                                        : field === 'surname'
+                                            ? 'Фамилия'
+                                            : field === 'email'
+                                                ? 'Электронная почта*'
+                                                : 'Телефон'
+                                }
+                                name={field}
+                                type={field === 'email' ? 'email' : 'text'}
+                                value={formData[field]}
                                 onChange={handleChange}
+                                fullWidth
+                                required={field === 'name' || field === 'email'}
+                                InputProps={{
+                                    readOnly: !canEdit,
+                                    style: {
+                                        color: !canEdit ? 'black' : 'initial',
+                                        backgroundColor: !canEdit ? '#f5f5f5' : 'transparent',
+                                    },
+                                }}
                             />
-                        </IconButton>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Имя*"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Фамилия"
-                            name="surname"
-                            value={formData.surname}
-                            onChange={handleChange}
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Электронная почта*"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            fullWidth
-                            required
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Телефон"
-                            name="phone"
-                            type="tel"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            fullWidth
-                        />
-                    </Grid>
+                        </Grid>
+                    ))}
+
                     <Grid item xs={12}>
                         <TextField
                             label="Дата рождения"
@@ -192,8 +197,16 @@ function Profile() {
                             onChange={handleChange}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
+                            InputProps={{
+                                readOnly: !canEdit,
+                                style: {
+                                    color: !canEdit ? 'black' : 'initial',
+                                    backgroundColor: !canEdit ? '#f5f5f5' : 'transparent',
+                                },
+                            }}
                         />
                     </Grid>
+
                     <Grid item xs={12}>
                         <TextField
                             label="Описание"
@@ -203,37 +216,48 @@ function Profile() {
                             value={formData.description}
                             onChange={handleChange}
                             fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Новый пароль"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            fullWidth
-                            placeholder="Оставьте пустым, если не хотите менять пароль"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button
-                            type="submit"
-                            variant="contained"
-                            //color="success"
-                            fullWidth
-                            disabled={submitting}
-                            sx={{ 
-                                backgroundColor: '#F0C422',
-                                transition: 'background-color 0.3s',
-                                    '&:hover': {
-                                    backgroundColor: '#E8BD20'
-                            }
+                            InputProps={{
+                                readOnly: !canEdit,
+                                style: {
+                                    color: !canEdit ? 'black' : 'initial',
+                                    backgroundColor: !canEdit ? '#f5f5f5' : 'transparent',
+                                },
                             }}
-                        >
-                            {submitting ? 'Обновление...' : 'Обновить профиль'}
-                        </Button>
+                        />
                     </Grid>
+
+                    {canEdit && (
+                        <>
+                            <Grid item xs={12}>
+                                <TextField
+                                    label="Новый пароль"
+                                    name="password"
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    fullWidth
+                                    placeholder="Оставьте пустым, если не хотите менять пароль"
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    fullWidth
+                                    disabled={submitting}
+                                    sx={{
+                                        backgroundColor: '#F0C422',
+                                        transition: 'background-color 0.3s',
+                                        '&:hover': {
+                                            backgroundColor: '#E8BD20',
+                                        },
+                                    }}
+                                >
+                                    {submitting ? 'Обновление...' : 'Обновить профиль'}
+                                </Button>
+                            </Grid>
+                        </>
+                    )}
                 </Grid>
             </Box>
         </Box>

@@ -30,6 +30,7 @@ function App() {
       <Container maxWidth="lg" sx={{ paddingY: 4 }}>
         <Routes>
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:userId" element={<Profile />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/bakeries/:id" element={<BakeryDetails />} />

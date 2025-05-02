@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../api/axiosConfig';
+import { Link } from 'react-router-dom';
 import {
     Container,
     Typography,
@@ -327,8 +328,7 @@ function BakeryOrders() {
                             <TableRow>
                                 <TableCell>ID Заказа</TableCell>
                                 <TableCell>Время выполнения</TableCell>
-                                <TableCell>Имя Клиента</TableCell>
-                                <TableCell>Телефон Клиента</TableCell>
+                                <TableCell>Клиент</TableCell>                                
                                 <TableCell>Пожелания</TableCell>
                                 <TableCell>Адрес Доставки</TableCell>
                                 {viewType === 'regular' ? (
@@ -368,10 +368,24 @@ function BakeryOrders() {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        {order.User.name} {order.User.surname}
+                                        <Link 
+                                            to={`/profile/${order.userId}`} 
+                                            style={{
+                                                backgroundColor: '#F0C422', // Применяем фон ко всему элементу
+                                                color: '#fff', // Белый цвет текста
+                                                textDecoration: 'none', // Убираем подчеркивание
+                                                cursor: 'pointer', // Курсор в виде указателя
+                                                padding: '1vh', // Отступы для текста
+                                                borderRadius: '4px', // Скругляем углы
+                                                display: 'inline-block', // Чтобы ссылка корректно отображалась с фоном
+                                                textAlign: 'center', // Центрируем текст по горизонтали
+                                                verticalAlign: 'middle', // Центрируем по вертикали
+                                            }}
+                                        >
+                                            {order.User.name} {order.User.surname}
+                                        </Link>
                                     </TableCell>
-                                    <TableCell>{order.User.phone}</TableCell>
-                                    <TableCell>{order.description}</TableCell>
+                                    <TableCell>{order.description || 'Не указаны'}</TableCell>
                                     <TableCell>{order.delivery_address}</TableCell>
                                     {viewType === 'regular' ? (
                                         <TableCell>
