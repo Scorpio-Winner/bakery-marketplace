@@ -37,7 +37,7 @@ export const CartProvider = ({ children }) => {
         } catch (error) {
             console.error('Ошибка при получении корзины:', error);
             setError('Не удалось загрузить корзину.');
-            handleSnackbarOpen('Не удалось загрузить корзину.', 'error');
+            //handleSnackbarOpen('Не удалось загрузить корзину.', 'error');
         } finally {
             setLoading(false);
         }

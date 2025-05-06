@@ -18,6 +18,7 @@ import {
     Box,
     Divider,
     Alert,
+    Avatar,
 } from '@mui/material';
 
 function BakeryDetails() {
@@ -281,10 +282,21 @@ function BakeryDetails() {
                             {reviews.map((review) => (
                                 <Box key={review.id} sx={{ marginBottom: '20px' }}>
                                     <Divider sx={{ marginBottom: '10px' }} />
-                                    <Typography variant="body1" fontWeight="bold">
-                                        {review.User.name} {review.User.surname} оценил(а) на {review.rating} звезд
-                                    </Typography>
-                                    <Typography variant="body2" paragraph>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                        <Avatar
+                                            src={
+                                                review.User?.photo
+                                                    ? `http://localhost:5000${review.User.photo}`
+                                                    : ''
+                                            }
+                                            alt={`Фото пользователя`}
+                                            sx={{ width: 55, height: 55 }}
+                                        />
+                                        <Typography variant="body1" fontWeight="bold">
+                                            {review.User.name} {review.User.surname} оценил(а) на {review.rating} звезд
+                                        </Typography>
+                                    </Box>
+                                    <Typography variant="body2" paragraph sx={{ mt: 1.5 }}>
                                         <em>{review.short_review}</em>
                                     </Typography>
                                     <Typography variant="body2" paragraph>
