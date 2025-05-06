@@ -19,6 +19,7 @@ import {
     Divider,
     Alert,
     Avatar,
+    Slider,
 } from '@mui/material';
 
 function BakeryDetails() {
@@ -31,6 +32,10 @@ function BakeryDetails() {
     const [quantities, setQuantities] = useState({});
     const [error, setError] = useState(null);
 
+    const [nameFilter, setNameFilter] = useState('');
+    const [priceRange, setPriceRange] = useState([0, 10000]);
+    const [filteredProducts, setFilteredProducts] = useState([]);
+
     useEffect(() => {
         fetchBakery();
         fetchReviews();
@@ -40,6 +45,14 @@ function BakeryDetails() {
         try {
             const response = await axios.get(`/api/bakeries/${id}`);
             setBakery(response.data);
+
+            if (response.data.Products && response.data.Products.length > 0) {
+                const prices = response.data.Products.map(p => p.price);
+                const min = Math.min(...prices);
+                const max = Math.max(...prices);
+                setPriceRange([min, max]);
+            }
+            
             setLoading(false);
         } catch (error) {
             console.error('Ошибка при получении информации о пекарне:', error);
@@ -91,6 +104,17 @@ function BakeryDetails() {
         }
         return stars;
     };
+
+    useEffect(() => {
+        if (bakery?.Products) {
+            const filtered = bakery.Products.filter((product) => {
+                const matchesName = product.name.toLowerCase().includes(nameFilter.toLowerCase());
+                const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+                return matchesName && matchesPrice;
+            });
+            setFilteredProducts(filtered);
+        }
+    }, [bakery, nameFilter, priceRange]);
 
     const isDifferentBakery = cartItems.length > 0 && cartItems[0].Product.bakeryId !== parseInt(id, 10);
 
@@ -178,92 +202,92 @@ function BakeryDetails() {
                         Товары
                     </Typography>
 
-                    {isDifferentBakery && (
-                        <Box sx={{
-                            marginBottom: '10px',
-                            padding: '10px',
-                            border: '1px solid #f44336',
-                            borderRadius: '4px',
-                            backgroundColor: '#ffebee',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <Typography variant="body1" color="error">
-                                В корзине уже есть товары из другой пекарни. Пожалуйста, очистите корзину перед добавлением новых товаров.
-                            </Typography>
-                            <Button
-                                variant="outlined"
-                                color="error"
-                                onClick={() => {
-                                    clearCart();
-                                }}
-                            >
-                                Очистить корзину
-                            </Button>
-                        </Box>
-                    )}
+                        {bakery.Products && bakery.Products.length > 0 && !isDifferentBakery && (
+                            <Box sx={{ marginBottom: '20px' }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+                                    <TextField
+                                        label="Поиск по названию"
+                                        value={nameFilter}
+                                        onChange={(e) => setNameFilter(e.target.value)}
+                                    />
+                                    <Box>
+                                        <Typography>Цена: от {priceRange[0]} ₽ до {priceRange[1]} ₽</Typography>
+                                        <Slider
+                                            value={priceRange}
+                                            onChange={(e, newValue) => setPriceRange(newValue)}
+                                            min={Math.min(...bakery.Products.map(p => p.price))}
+                                            max={Math.max(...bakery.Products.map(p => p.price))}
+                                            valueLabelDisplay="auto"
+                                        />
+                                    </Box>
+                                    <Button variant="outlined" color="secondary" onClick={() => {
+                                        setNameFilter('');
+                                        const prices = bakery.Products.map(p => p.price);
+                                        setPriceRange([Math.min(...prices), Math.max(...prices)]);
+                                    }}>
+                                        Сбросить фильтры
+                                    </Button>
+                                </Box>
+                            </Box>
+                        )}
 
-                    {bakery.Products && bakery.Products.length > 0 ? (
-                        <Grid container spacing={4}>
-                            {bakery.Products.map((product) => (
-                                <Grid item xs={12} sm={6} md={4} key={product.id}>
-                                    <Card>
-                                        {product.photo && (
-                                            <CardMedia
-                                                component="img"
-                                                height="200"
-                                                image={`http://localhost:5000${product.photo}`}
-                                                alt={product.name}
-                                            />
-                                        )}
-                                        <CardContent>
-                                            <Typography variant="h5" component="h3">
-                                                {product.name}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary" paragraph>
-                                                {product.description}
-                                            </Typography>
-                                            <Typography variant="body1" color="text.primary" paragraph>
-                                                Цена: {product.price} ₽
-                                            </Typography>
-                                            {authData.isAuthenticated && (
-                                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                    <TextField
-                                                        label="Количество"
-                                                        type="number"
-                                                        inputProps={{ min: 1 }}
-                                                        value={quantities[product.id] || 1}
-                                                        onChange={(e) =>
-                                                            handleQuantityChange(product.id, e.target.value)
-                                                        }
-                                                        sx={{ width: '80px', marginRight: '10px' }}
-                                                    />
-                                                    <Button
-                                                        variant="contained"
-                                                        color="primary"
-                                                        onClick={() => handleAddToCart(product)}
-                                                        disabled={isDifferentBakery}
-                                                        sx={{
-                                                            backgroundColor: '#F0C422',
-                                                                transition: 'background-color 0.3s',
-                                                                    '&:hover': {
-                                                                    backgroundColor: '#E8BD20'
-                                                            }
-                                                        }}
-                                                    >
-                                                        Добавить в корзину
-                                                    </Button>
-                                                </Box>
+                        {isDifferentBakery && (
+                            <Box sx={{ marginBottom: '10px', padding: '10px', border: '1px solid #f44336', borderRadius: '4px', backgroundColor: '#ffebee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="body1" color="error">
+                                    В корзине уже есть товары из другой пекарни. Пожалуйста, очистите корзину перед добавлением новых товаров.
+                                </Typography>
+                                <Button variant="outlined" color="error" onClick={() => clearCart()}>
+                                    Очистить корзину
+                                </Button>
+                            </Box>
+                        )}
+
+                        {filteredProducts.length > 0 ? (
+                            <Grid container spacing={4}>
+                                {filteredProducts.map((product) => (
+                                    <Grid item xs={12} sm={6} md={4} key={product.id}>
+                                        <Card>
+                                            {product.photo && (
+                                                <CardMedia
+                                                    component="img"
+                                                    height="200"
+                                                    image={`http://localhost:5000${product.photo}`}
+                                                    alt={product.name}
+                                                />
                                             )}
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    ) : (
-                        <Typography variant="body1">Товары не найдены.</Typography>
-                    )}
+                                            <CardContent>
+                                                <Typography variant="h5" component="h3">{product.name}</Typography>
+                                                <Typography variant="body2" color="text.secondary" paragraph>{product.description}</Typography>
+                                                <Typography variant="body1" color="text.primary" paragraph>Цена: {product.price} ₽</Typography>
+                                                {authData.isAuthenticated && (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                        <TextField
+                                                            label="Количество"
+                                                            type="number"
+                                                            inputProps={{ min: 1 }}
+                                                            value={quantities[product.id] || 1}
+                                                            onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+                                                            sx={{ width: '80px', marginRight: '10px' }}
+                                                        />
+                                                        <Button
+                                                            variant="contained"
+                                                            color="primary"
+                                                            onClick={() => handleAddToCart(product)}
+                                                            disabled={isDifferentBakery}
+                                                            sx={{ backgroundColor: '#F0C422', '&:hover': { backgroundColor: '#E8BD20' } }}
+                                                        >
+                                                            Добавить в корзину
+                                                        </Button>
+                                                    </Box>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        ) : (
+                            <Typography variant="body1">Товары не найдены.</Typography>
+                        )}
                     {/* AI-блок – только если разрешена индивидуальная генерация и пользователь имеет роль "user" */}
                     {bakery.is_individual_order_avaliable && localStorage.getItem('role') === 'user' && (                        
                         <AISection bakery={bakery}/>
