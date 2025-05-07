@@ -74,7 +74,7 @@ export const CartProvider = ({ children }) => {
                 if (existingItem) {
                     return prevItems.map(item =>
                         item.productId === addedItem.productId
-                            ? { ...item, quantity: item.quantity + addedItem.quantity }
+                            ? { ...item, quantity: addedItem.quantity } 
                             : item
                     );
                 } else {
