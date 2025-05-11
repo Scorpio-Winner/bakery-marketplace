@@ -33,9 +33,7 @@ function Profile() {
     const fetchUser = async () => {
         try {
             let response;
-            const isBakery = localStorage.getItem('role') === 'bakery';
-
-            if (isBakery && userId) {
+            if (userId) {
                 response = await axios.get(`/api/users/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${authData.token}`,

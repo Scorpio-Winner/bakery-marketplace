@@ -53,7 +53,6 @@ function Orders() {
                 },
             });
             setBakeries(response.data.bakeries);
-            console.log('Bakeries response:', response.data);
         } catch (error) {
             console.error('Ошибка при получении списка пекарен:', error);
         }
@@ -92,7 +91,6 @@ function Orders() {
                 },
             });
             setIndividualOrders(response.data);
-            console.log('Individual orders:', response.data);
         } catch (error) {
             console.error('Ошибка при получении индивидуальных заказов:', error);
         }        
@@ -305,7 +303,7 @@ function Orders() {
                                         />
                                     <ListItemText primary={`Адрес доставки: ${order.delivery_address}`} />
                                     <ListItemText
-                                        primary={`Дата заказа: ${new Date(order.date_of_ordering).toLocaleString()}`}
+                                        primary={`Дата и Время заказа: ${new Date(order.date_of_ordering).toLocaleString()}`}
                                     />
                                     <ListItemText
                                         primary={`Время готовности: ${
@@ -330,12 +328,14 @@ function Orders() {
                                                 Товары:
                                             </Typography>
                                             <List sx={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-                                                {order.OrderItems?.map((item) => (
-                                                    <ListItem key={item.id} sx={{ display: 'list-item' }}>
-                                                        {item?.Product?.name} x {item.quantity} ={' '}
-                                                        {item?.Product?.price * item.quantity} ₽
-                                                    </ListItem>
-                                                ))}
+                                                {order?.name?.split(';').map((item, index) => {
+                                                    const [productName, quantity] = item.trim().split(' x '); // Разделяем на название и количество
+                                                    return (
+                                                        <ListItem key={index} sx={{ display: 'list-item' }}>
+                                                            {productName} x {quantity}
+                                                        </ListItem>
+                                                    );
+                                                })}
                                             </List>
                                         </>
                                     ) : (

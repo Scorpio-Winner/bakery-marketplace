@@ -32,7 +32,6 @@ export const CartProvider = ({ children }) => {
                     Authorization: `Bearer ${authData.token}`,
                 },
             });
-            console.log('Полученные BasketItems:', response.data.BasketItems);
             setCartItems(response.data.BasketItems || []);
         } catch (error) {
             console.error('Ошибка при получении корзины:', error);

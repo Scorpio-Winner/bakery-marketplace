@@ -77,7 +77,7 @@ class ReviewController {
                     { model: Order },
                     { model: IndividualOrder },
                     { model: Bakery },
-                    { model: User, attributes: ['name', 'surname', 'photo'] },
+                    { model: User, attributes: ['name', 'surname', 'photo', 'id'] },
                 ],
             });
 
@@ -99,7 +99,7 @@ class ReviewController {
                     { model: Order },
                     { model: IndividualOrder },
                     { model: Bakery },
-                    { model: User, attributes: ['name', 'surname', 'photo'] },
+                    { model: User, attributes: ['name', 'surname', 'photo', 'id'] },
                 ],
                 order: [['createdAt', 'DESC']],
             });
@@ -172,7 +172,7 @@ class ReviewController {
                     { model: Order },
                     { model: IndividualOrder },
                     { model: Bakery },
-                    { model: User, attributes: ['name', 'surname', 'photo'] },
+                    { model: User, attributes: ['name', 'surname', 'photo', 'id'] },
                 ],
                 order: [['createdAt', 'DESC']],
             });

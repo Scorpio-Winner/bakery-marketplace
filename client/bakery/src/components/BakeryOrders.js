@@ -338,7 +338,7 @@ function BakeryOrders() {
                                 )}
                                 <TableCell>Общая Стоимость</TableCell>
                                 <TableCell>Статус</TableCell>
-                                <TableCell>Дата Заказа</TableCell>
+                                <TableCell>Дата и Время Заказа</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -389,16 +389,19 @@ function BakeryOrders() {
                                     <TableCell>{order.delivery_address}</TableCell>
                                     {viewType === 'regular' ? (
                                         <TableCell>
-                                            {order.OrderItems && (
-                                                <ul style={{ paddingLeft: '20px', margin: 0 }}>
-                                                    {order.OrderItems.map((item) => (
-                                                        <li key={item.id}>
-                                                            {item.Product.name} x {item.quantity}
+                                        {order?.name && (
+                                            <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                                                {order.name.split(';').map((item, index) => {
+                                                    const [productName, quantity] = item.trim().split(' x '); // Разделяем на название и количество
+                                                    return (
+                                                        <li key={index} style={{ marginBottom: '0.5vh' }}> {/* Добавлен отступ между элементами списка */}
+                                                            {productName} x {quantity}
                                                         </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </TableCell>
+                                                    );
+                                                })}
+                                            </ul>
+                                        )}
+                                    </TableCell>
                                     ) : (
                                         <TableCell>
                                             {order.photo ? (

@@ -69,8 +69,6 @@ function HomePage() {
                 params.is_individual_order_avaliable = individualOrderFilter === 'true';
             }
 
-            console.log(params);
-
             const response = await axios.get('/api/bakeries', { params });
             setBakeries(response.data.bakeries);
             setTotalPages(Math.ceil(response.data.total / itemsPerPage));

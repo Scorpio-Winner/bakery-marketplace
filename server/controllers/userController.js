@@ -64,7 +64,7 @@ class UserController {
                 { expiresIn: '24h' }
             );
 
-            res.json({ token, userId: user.id });
+            res.json({ token, user: user });
         } catch (error) {
             console.error('Ошибка при входе пользователя:', error);
             res.status(500).json({ message: 'Ошибка сервера' });

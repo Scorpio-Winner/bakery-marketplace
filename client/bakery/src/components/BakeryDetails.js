@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from '../api/axiosConfig';
 import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { AuthContext } from '../context/AuthContext';
@@ -308,6 +309,8 @@ function BakeryDetails() {
                                     <Divider sx={{ marginBottom: '10px' }} />
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Avatar
+                                        component={Link}
+                                        to={`/profile/${review.User.id}`}
                                             src={
                                                 review.User?.photo
                                                     ? `http://localhost:5000${review.User.photo}`

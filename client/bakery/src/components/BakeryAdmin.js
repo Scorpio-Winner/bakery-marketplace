@@ -122,6 +122,8 @@ function BakeryAdmin() {
                             <Divider sx={{ marginBottom: '10px' }} />
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                         <Avatar
+                                        component={Link}
+                                        to={`/profile/${review.User.id}`}
                                             src={
                                                 review.User?.photo
                                                     ? `http://localhost:5000${review.User.photo}`
