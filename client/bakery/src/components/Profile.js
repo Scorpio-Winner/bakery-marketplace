@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import { ToastContainer, toast } from 'react-toastify';
+import InputMask from 'react-input-mask';
 import 'react-toastify/dist/ReactToastify.css';
 import {
     Box, Button, CircularProgress, Grid, TextField, Typography, Avatar, IconButton,
@@ -66,6 +67,11 @@ function Profile() {
         }
     };
 
+    const isPhoneValid = (phone) => {
+        const clean = phone.replace(/\D/g, '');
+        return clean.length === 12; // +375 (xx) xxx-xx-xx = 12 цифр
+    };
+
     const handleChange = (e) => {
         const { name, value, files } = e.target;
         if (name === 'photo') {
@@ -82,6 +88,13 @@ function Profile() {
             toast.error('Пожалуйста, заполните обязательные поля (Имя, Email)');
             return;
         }
+
+        const phoneToCheck = formData.phone;
+        
+                if (!isPhoneValid(phoneToCheck)) {
+                    toast.error('Введите корректный номер телефона');
+                    return;
+                }
 
         setSubmitting(true);
         try {
@@ -159,15 +172,44 @@ function Profile() {
 
                     {['name', 'surname', 'email', 'phone'].map((field, idx) => (
                         <Grid item xs={12} key={idx}>
+                            {field === 'phone' ? (
+                            <InputMask
+                                mask="+375 (99) 999-99-99"
+                                maskChar={null}
+                                value={formData.phone}
+                                onChange={handleChange}
+                                disabled={!canEdit}
+                            >
+                                {(inputProps) => (
+                                    <TextField
+                                        {...inputProps}
+                                        label="Телефон"
+                                        name="phone"
+                                        fullWidth
+                                        error={formData.phone && !isPhoneValid(formData.phone)}
+                                        InputProps={{
+                                            readOnly: !canEdit,
+                                            style: {
+                                                color: !canEdit ? 'black' : 'initial',
+                                                backgroundColor: !canEdit ? '#f5f5f5' : 'transparent',
+                                            },
+                                        }}
+                                        helperText={
+                                            formData.phone && !isPhoneValid(formData.phone)
+                                                ? 'Введите корректный номер телефона'
+                                                : ''
+                                        }
+                                    />
+                                )}
+                            </InputMask>
+                        ) : (
                             <TextField
                                 label={
                                     field === 'name'
                                         ? 'Имя*'
                                         : field === 'surname'
                                             ? 'Фамилия'
-                                            : field === 'email'
-                                                ? 'Электронная почта*'
-                                                : 'Телефон'
+                                            : 'Электронная почта*'
                                 }
                                 name={field}
                                 type={field === 'email' ? 'email' : 'text'}
@@ -183,6 +225,7 @@ function Profile() {
                                     },
                                 }}
                             />
+                        )}
                         </Grid>
                     ))}
 

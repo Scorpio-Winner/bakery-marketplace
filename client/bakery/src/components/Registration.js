@@ -3,6 +3,7 @@ import axios from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import { Container, Typography, TextField, Button, Box, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
+import InputMask from 'react-input-mask';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Registration() {
@@ -33,6 +34,11 @@ function Registration() {
         setRole(e.target.value);
     };
 
+    const isPhoneValid = (phone) => {
+        const clean = phone.replace(/\D/g, '');
+        return clean.length === 12; // +375 (xx) xxx-xx-xx = 12 цифр
+    };
+
     const handleIndividualOrderChange = (e) => {
         setFormData((prev) => ({
           ...prev,
@@ -53,6 +59,18 @@ function Registration() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (formData.password !== formData.confirmPassword) {
+            toast.error('Пароли не совпадают');
+            return;
+        }
+
+        const phoneToCheck = role === 'user' ? formData.phone : formData.bakeryPhone;
+
+        if (!isPhoneValid(phoneToCheck)) {
+            toast.error('Введите корректный номер телефона');
+            return;
+        }
+    
         if (formData.password !== formData.confirmPassword) {
             toast.error('Пароли не совпадают');
             return;
@@ -151,13 +169,28 @@ function Registration() {
                             value={formData.surname}
                             onChange={handleChange}
                         />
-                        <TextField
-                            label="Телефон"
-                            name="phone"
-                            required
-                            value={formData.phone}
-                            onChange={handleChange}
-                        />
+                        <InputMask
+                        mask="+375 (99) 999-99-99"
+                        maskChar={null}
+                        value={formData.phone}
+                        onChange={handleChange}
+                    >
+                        {(inputProps) => (
+                            <TextField
+                                {...inputProps}
+                                label="Телефон"
+                                name="phone"
+                                required
+                                fullWidth
+                                error={formData.phone && !isPhoneValid(formData.phone)}
+                                helperText={
+                                    formData.phone && !isPhoneValid(formData.phone)
+                                        ? 'Введите корректный номер телефона'
+                                        : ''
+                                }
+                            />
+                        )}
+                    </InputMask>
                         <TextField
                             label="Дата рождения"
                             name="birth_date"
@@ -207,13 +240,28 @@ function Registration() {
                             value={formData.registrationNumber}
                             onChange={handleChange}
                         />
-                        <TextField
-                            label="Телефон"
-                            name="bakeryPhone"
-                            required
-                            value={formData.bakeryPhone}
-                            onChange={handleChange}
-                        />
+                        <InputMask
+                        mask="+375 (99) 999-99-99"
+                        maskChar={null}
+                        value={formData.bakeryPhone}
+                        onChange={handleChange}
+                    >
+                        {(inputProps) => (
+                            <TextField
+                                {...inputProps}
+                                label="Телефон"
+                                name="bakeryPhone"
+                                required
+                                fullWidth
+                                error={formData.bakeryPhone && !isPhoneValid(formData.bakeryPhone)}
+                                helperText={
+                                    formData.bakeryPhone && !isPhoneValid(formData.bakeryPhone)
+                                        ? 'Введите корректный номер телефона'
+                                        : ''
+                                }
+                            />
+                        )}
+                    </InputMask>
                         <TextField
                             label="Адрес"
                             name="address"

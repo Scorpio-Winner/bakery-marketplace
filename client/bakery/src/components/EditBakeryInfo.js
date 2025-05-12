@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
+import InputMask from 'react-input-mask';
+import { ToastContainer, toast } from 'react-toastify';
 import { Container, Typography, TextField, Button, Box, InputLabel, CardMedia, Select, MenuItem, FormControl } from '@mui/material';
 
 function EditBakeryInfo() {
@@ -45,6 +47,11 @@ function EditBakeryInfo() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const isPhoneValid = (phone) => {
+        const clean = phone.replace(/\D/g, '');
+        return clean.length === 12; // +375 (xx) xxx-xx-xx = 12 цифр
+    };
+
     const handlePhotoChange = (e) => {
         setPhoto(e.target.files[0]);
     };
@@ -58,6 +65,13 @@ function EditBakeryInfo() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+         const phoneToCheck = formData.phone;
+                
+        if (!isPhoneValid(phoneToCheck)) {
+            toast.error('Введите корректный номер телефона');
+            return;
+        }
 
         const data = new FormData();
         data.append('name', formData.name);
@@ -127,13 +141,28 @@ function EditBakeryInfo() {
                     value={formData.registration_number}
                     onChange={handleChange}
                 />
-                <TextField
-                    label="Телефон"
-                    name="phone"
-                    required
-                    value={formData.phone}
-                    onChange={handleChange}
-                />
+                <InputMask
+                                        mask="+375 (99) 999-99-99"
+                                        maskChar={null}
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                    >
+                                        {(inputProps) => (
+                                            <TextField
+                                                {...inputProps}
+                                                label="Телефон"
+                                                name="phone"
+                                                required
+                                                fullWidth
+                                                error={formData.phone && !isPhoneValid(formData.phone)}
+                                                helperText={
+                                                    formData.phone && !isPhoneValid(formData.phone)
+                                                        ? 'Введите корректный номер телефона'
+                                                        : ''
+                                                }
+                                            />
+                                        )}
+                                    </InputMask>
                 <TextField
                     label="Адрес"
                     name="address"
