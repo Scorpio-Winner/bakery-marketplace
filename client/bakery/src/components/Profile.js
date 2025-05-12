@@ -206,10 +206,10 @@ function Profile() {
                             <TextField
                                 label={
                                     field === 'name'
-                                        ? 'Имя*'
+                                        ? 'Имя'
                                         : field === 'surname'
-                                            ? 'Фамилия'
-                                            : 'Электронная почта*'
+                                            ? 'Фамилия *'
+                                            : 'Электронная почта'
                                 }
                                 name={field}
                                 type={field === 'email' ? 'email' : 'text'}
