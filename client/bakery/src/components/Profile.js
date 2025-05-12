@@ -84,8 +84,8 @@ function Profile() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.name.trim() || !formData.email.trim()) {
-            toast.error('Пожалуйста, заполните обязательные поля (Имя, Email)');
+        if (!formData.name.trim() || !formData.email.trim() || !formData.surname.trim()) {
+            toast.error('Пожалуйста, заполните обязательные поля (Имя, Фамилия, Email)');
             return;
         }
 
