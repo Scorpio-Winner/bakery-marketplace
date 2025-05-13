@@ -7,7 +7,7 @@ const BakeryRoute = ({ children }) => {
     const { authData } = useContext(AuthContext);
 
     if (!authData.isAuthenticated) {
-        toast.error('Для доступа к этому разделу необходимо войти в систему.');
+        //toast.error('Для доступа к этому разделу необходимо войти в систему.');
         return <Navigate to="/login" />;
     }
 
