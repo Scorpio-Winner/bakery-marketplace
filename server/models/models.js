@@ -85,6 +85,15 @@ const Review = sequelize.define('Review', {
   bakeryId: { type: DataTypes.INTEGER, allowNull: false },
 }, { timestamps: true });
 
+const TechnicalRequest = sequelize.define('TechnicalRequest', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  short_request: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.STRING, allowNull: false },
+  status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'на рассмотрении' },
+  userId: { type: DataTypes.INTEGER, allowNull: true },
+  bakeryId: { type: DataTypes.INTEGER, allowNull: true },
+}, { timestamps: true });
+
 User.hasOne(Basket, { foreignKey: 'userId' });
 Basket.belongsTo(User, { foreignKey: 'userId' });
 
@@ -133,6 +142,12 @@ BasketItem.belongsTo(Product, { foreignKey: 'productId' });
 User.hasMany(Review, { foreignKey: 'userId' });
 Review.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasMany(TechnicalRequest, { foreignKey: 'userId' });
+TechnicalRequest.belongsTo(User, { foreignKey: 'userId' });
+
+Bakery.hasMany(TechnicalRequest, { foreignKey: 'bakeryId' });
+TechnicalRequest.belongsTo(Bakery, { foreignKey: 'bakeryId' });
+
 module.exports = {
   User,
   Bakery,
@@ -143,5 +158,6 @@ module.exports = {
   IndividualOrder,
   OrderItem,
   Review,
+  TechnicalRequest,
   sequelize,
 };

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import SupportModal from './SupportModal';
 import {
     AppBar,
     Toolbar,
@@ -19,6 +20,7 @@ const NavigationBar = () => {
     const navigate = useNavigate();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [supportOpen, setSupportOpen] = useState(false);
 
     const [anchorEl, setAnchorEl] = useState(null);
 
@@ -73,6 +75,9 @@ const NavigationBar = () => {
 
         if (authData.isAuthenticated) {
             buttons.push(
+                <Button key="support" color="inherit" onClick={() => setSupportOpen(true)} sx={commonButtonStyle}>
+                    Тех Поддержка
+                </Button>,
                 <Button key="logout" color="inherit" onClick={handleLogout} sx={commonButtonStyle}>Выход</Button>
             );
         }
@@ -81,55 +86,63 @@ const NavigationBar = () => {
     };
 
     return (
-        <AppBar position="static" style={{ backgroundColor: '#F0C422' }}>
-            <Container maxWidth="lg">
-                <Toolbar disableGutters sx={{ justifyContent: 'flex-start' }}>
-                    {isMobile ? (
-                        <>
-                            <IconButton
-                            size="large"
-                            edge="start"
-                            color="inherit"
-                            aria-label="menu"
-                            onClick={handleMenuOpen}
-                            sx={{ marginLeft: 1 }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                            <Menu
-                            anchorEl={anchorEl}
-                            open={Boolean(anchorEl)}
-                            onClose={handleMenuClose}
-                            PaperProps={{
-                                sx: {
-                                    backgroundColor: '#F0C422',
-                                    color: 'white',
-                                },
-                            }}
-                        >
-                            {renderButtons().map((button, index) => (
-                                <MenuItem
-                                    key={index}
-                                    onClick={handleMenuClose}
-                                    sx={{
-                                        color: 'white',
-                                        '&:hover': {
-                                            backgroundColor: '#e0b920',
-                                        }
+        <>
+            <AppBar position="static" style={{ backgroundColor: '#F0C422' }}>
+                <Container maxWidth="lg">
+                    <Toolbar disableGutters sx={{ justifyContent: 'flex-start' }}>
+                        {isMobile ? (
+                            <>
+                                <IconButton
+                                    size="large"
+                                    edge="start"
+                                    color="inherit"
+                                    aria-label="menu"
+                                    onClick={handleMenuOpen}
+                                    sx={{ marginLeft: 1 }}
+                                >
+                                    <MenuIcon />
+                                </IconButton>
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    open={Boolean(anchorEl)}
+                                    onClose={handleMenuClose}
+                                    PaperProps={{
+                                        sx: {
+                                            backgroundColor: '#F0C422',
+                                            color: 'white',
+                                        },
                                     }}
                                 >
-                                    {button}
-                                </MenuItem>
-                            ))}
-                        </Menu>
-                        </>
-                    ) : (
-                        renderButtons()
-                    )}
-                </Toolbar>
-            </Container>
-        </AppBar>
+                                    {renderButtons().map((button, index) => (
+                                        <MenuItem
+                                            key={index}
+                                            onClick={handleMenuClose}
+                                            sx={{
+                                                color: 'white',
+                                                '&:hover': {
+                                                    backgroundColor: '#e0b920',
+                                                }
+                                            }}
+                                        >
+                                            {button}
+                                        </MenuItem>
+                                    ))}
+                                </Menu>
+                            </>
+                        ) : (
+                            renderButtons()
+                        )}
+                    </Toolbar>
+                </Container>
+            </AppBar>
+            <SupportModal
+                open={supportOpen}
+                onClose={() => setSupportOpen(false)}
+                userRole={authData.role}
+                userId={authData?.user?.id}
+            />
+        </>
     );
-};
+}
 
 export default NavigationBar;
