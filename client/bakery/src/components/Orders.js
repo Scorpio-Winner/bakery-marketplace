@@ -19,6 +19,8 @@ import {
     DialogContentText,
     DialogActions,
     CardMedia,
+    Select,
+    MenuItem,
 } from '@mui/material';
 import { FaStar } from 'react-icons/fa';
 
@@ -228,7 +230,7 @@ function Orders() {
                 Мои заказы
             </Typography>
 
-            <Box sx={{ display: 'flex', gap: 2, marginBottom: 2, flexDirection: { xs: 'column', sm: 'row' }, }}>
+            <Box sx={{ display: 'flex', gap: 2, marginBottom: 4, flexDirection: { xs: 'column', sm: 'row' }, }}>
                 <Button
                     variant="contained"
                     onClick={() => setViewType('regular')}
@@ -258,6 +260,40 @@ function Orders() {
                     }}
                 >
                     Индивидуальные заказы
+                </Button>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', sm: 'row' }, marginBottom: 2 }}>
+                <TextField
+                    label="Поиск по дате (ГГГГ-ММ-ДД)"
+                    type="date"
+                    value={searchDate}
+                    onChange={(e) => setSearchDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                />
+                <Select
+                    value={searchStatus}
+                    onChange={(e) => setSearchStatus(e.target.value)}
+                    displayEmpty
+                    fullWidth
+                >
+                    <MenuItem value="">Все статусы</MenuItem>
+                    {allowedStatuses.map((status) => (
+                        <MenuItem key={status} value={status}>
+                            {status}
+                        </MenuItem>
+                    ))}
+                </Select>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => {
+                    setSearchDate('');
+                    setSearchStatus('');
+                }}
+                    >
+                    Сбросить фильтры                    
                 </Button>
             </Box>
 
