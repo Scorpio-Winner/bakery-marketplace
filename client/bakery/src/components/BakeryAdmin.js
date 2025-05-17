@@ -81,7 +81,7 @@ function BakeryAdmin() {
     return (
         <Container sx={{ padding: '20px' }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                Панель управления пекарни
+                Панель управления пекарней
             </Typography>
             <Box sx={{ marginBottom: '20px' }}>
                 <Typography variant="h6" component="div">
